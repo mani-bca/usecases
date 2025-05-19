@@ -32,8 +32,8 @@ module "web_server_sg" {
       description             = "Allow HTTP from ALB"
     },
     {
-      from_port               = 4000
-      to_port                 = 4000
+      from_port               = 8000
+      to_port                 = 8000
       protocol                = "tcp"
       source_security_group_id = module.alb_sg.security_group_id
       description             = "Allow HTTP from ALB dev"
@@ -115,29 +115,6 @@ module "web_server_1" {
   ]
 }
 
-module "web_server_2" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=main"
-  
-  name_prefix                = "${var.project_name}-web-server-2"
-  ami_id                     = var.web_server_ami
-  instance_type              = var.web_server_instance_type
-  subnet_id                  = module.vpc.public_subnet_ids[1]
-  security_group_ids         = [module.web_server_sg.security_group_id]
-  key_name                   = var.ssh_key_name
-  associate_public_ip_address = true
-  user_data_script          = "${path.root}/scripts/dev.sh"
-  
-  root_volume_type           = var.root_volume_type
-  root_volume_size           = var.root_volume_size
-  iam_instance_profile       = var.iam_instance_profile
-  
-  tags = var.tags
-  depends_on = [
-    module.vpc,
-    module.alb_sg,
-    module.web_server_sg
-  ]
-}
 
 module "alb" {
   source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/alb?ref=main"
@@ -149,7 +126,7 @@ module "alb" {
   
   # Target Groups
   target_groups = {
-    openproject = {
+    focalboard = {
       port     = 80
       protocol = "HTTP"
       health_check = {
@@ -164,22 +141,22 @@ module "alb" {
     }
   }
    
-  default_target_group_key = "openproject"
+  default_target_group_key = "focalboard"
   
   # Target Group Attachments
   target_group_attachments = [
     {
-      target_group_key = "openproject"
+      target_group_key = "focalboard"
       target_id        = module.web_server_1.instance_id
       port             = 80
     }
   ]
   # Path-based routing rules
   path_based_rules = {
-    openproject = {
+    focalboard = {
       priority      = 20
       path_patterns = ["/"]
-      target_group_key = "openproject"
+      target_group_key = "focalboard"
     }
   }
   tags = {
@@ -190,63 +167,6 @@ module "alb" {
     module.vpc,
     module.alb_sg,
     module.web_server_sg,
-    module.web_server_1,
-    module.web_server_2
-  ]
-}
-
-module "alb2" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/alb?ref=main"
-  
-  name_prefix = "${var.project_name}-${var.environment}-sec"
-  vpc_id      = module.vpc.vpc_id
-  subnet_ids  = module.vpc.public_subnet_ids
-  security_group_ids = [module.alb_sg.security_group_id]
-  
-  # Target Groups
-  target_groups = {
-    devlake = {
-      port     = 4000
-      protocol = "HTTP"
-      health_check = {
-        path                = "/"
-        port                = "traffic-port"
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 5
-        interval            = 30
-        matcher             = "200"
-      }
-    }
-  }
-   
-  default_target_group_key = "devlake"
-  
-  # Target Group Attachments
-  target_group_attachments = [
-    {
-      target_group_key = "devlake"
-      target_id        = module.web_server_2.instance_id
-      port             = 4000
-    }
-  ]
-  # Path-based routing rules
-  path_based_rules = {
-    devlake = {
-      priority      = 20
-      path_patterns = ["/"]
-      target_group_key = "devlake"
-    }
-  }
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
-  depends_on = [
-    module.vpc,
-    module.alb_sg,
-    module.web_server_sg,
-    module.web_server_1,
-    module.web_server_2
+    module.web_server_1
   ]
 }
