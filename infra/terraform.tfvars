@@ -1,6 +1,6 @@
 # General settings
 aws_region   = "us-east-1"
-project_name = "usecase-3-4"
+project_name = "usecase-10"
 environment  = "dev"
 
 tags = {

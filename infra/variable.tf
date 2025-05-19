@@ -1,60 +1,112 @@
-# General settings
-aws_region   = "us-east-1"
-project_name = "usecase-3-4"
-environment  = "dev"
-
-tags = {
-  Environment = "dev"
-  Project     = "delete"
+variable "aws_region" {
+  description = "AWS region to deploy resources"
+  type        = string
 }
 
-# VPC settings
-vpc_cidr             = "10.0.0.0/16"
-availability_zones   = ["us-east-1a", "us-east-1b"]
-public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
-private_subnet_cidrs = []
-create_nat_gateway   = false
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}
 
-# EC2 settings
-web_server_ami           = "ami-084568db4383264d4"
-web_server_instance_type = "t2.medium"
-ssh_key_name             = "devops"
-root_volume_type         = "gp2"
-root_volume_size         = 8
-iam_instance_profile     = null
-# admin_ip_cidr            = "0.0.0.0/0"
+variable "environment" {
+  description = "Environment (dev, staging, prod)"
+  type        = string
+}
 
-# sg for ALB
-alb_sg_ingress_cidr = [
-  {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow HTTP from anywhere"
-  },
-  {
-    from_port   = 4000
-    to_port     = 4000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow HTTP from anywhere"
-  },
-  {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow HTTPS from anywhere"
-  }
-]
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+}
 
-alb_sg_egress_rules = [
-  {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-]
+# VPC Variables
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+}
+
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for public subnets"
+  type        = list(string)
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+}
+
+variable "create_nat_gateway" {
+  description = "Whether to create a NAT Gateway"
+  type        = bool
+}
+
+# EC2 Variables
+
+variable "web_server_ami" {
+  description = "AMI ID for web servers"
+  type        = string
+}
+
+variable "web_server_instance_type" {
+  description = "Instance type for web servers"
+  type        = string
+}
+
+variable "ssh_key_name" {
+  description = "Name of SSH key pair to use for EC2 instances"
+  type        = string
+}
+
+# variable "admin_ip_cidr" {
+#   description = "CIDR block for admin IP (for SSH access)"
+#   type        = string
+# }
+
+variable "root_volume_type" {
+  description = "Volume type for the root block device"
+  type        = string
+}
+
+variable "root_volume_size" {
+  description = "Volume size for the root block device in GB"
+  type        = number
+}
+
+variable "iam_instance_profile" {
+  description = "IAM instance profile to attach to the instance"
+  type        = string
+}
+# variable for sg
+variable "alb_sg_ingress_cidr" {
+  description = "Ingress rules for ALB"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+    description = string
+  }))
+  default = []
+}
+
+variable "alb_sg_egress_rules" {
+  description = "Egress rules for ALB"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+    description = string
+  }))
+  default = []
+}
+variable "ssh_allowed_cidrs" {
+  description = "CIDR blocks allowed to SSH to instances"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
