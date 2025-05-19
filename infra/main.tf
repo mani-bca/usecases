@@ -68,28 +68,6 @@ module "web_server_sg" {
   ]
 }
 
-# Security Group for ALB
-module "alb_sg" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/security_group?ref=main"
-  
-  name_prefix  = "${var.project_name}-${var.environment}"
-  name         = "alb-sg"
-  description  = "Security group for the ALB"
-  vpc_id       = module.vpc.vpc_id
-  
-  ingress_with_cidr_blocks = var.alb_sg_ingress_cidr
-  
-  egress_rules = var.alb_sg_egress_rules
-  
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
-  depends_on = [
-    module.vpc
-  ]
-}
-
 
 module "web_server_1" {
   source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=main"
