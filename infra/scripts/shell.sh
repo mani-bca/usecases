@@ -3,4 +3,7 @@ apt-get update -y
 apt-get install -y docker.io
 systemctl start docker
 systemctl enable docker
-docker run -dit --name focalboard -p 8000:8000 -v ~/focalboard-data:/data mattermost/focalboard
+
+apt-get install -y nginx
+systemctl start nginx
+systemctl enable nginx
