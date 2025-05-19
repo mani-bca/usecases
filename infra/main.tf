@@ -148,7 +148,7 @@ module "alb" {
     {
       target_group_key = "focalboard"
       target_id        = module.web_server_1.instance_id
-      port             = 80
+      port             = 8000
     }
   ]
   # Path-based routing rules
