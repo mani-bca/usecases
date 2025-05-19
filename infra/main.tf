@@ -127,7 +127,7 @@ module "alb" {
   # Target Groups
   target_groups = {
     focalboard = {
-      port     = 80
+      port     = 8000
       protocol = "HTTP"
       health_check = {
         path                = "/"
