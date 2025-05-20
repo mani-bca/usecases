@@ -14,72 +14,31 @@ module "vpc" {
   }
 }
 
-# Security Group for EC2 Instances
-module "web_server_sg" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/sg2?ref=45f8b42"
-  
-  name        = "web-server"
-  name_prefix = var.project_name
-  description = "Security group for web servers"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress_rules = [
-    {
-      from_port   = 80
-      to_port     = 80
-      protocol    = "tcp" 
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "Allow HTTP from anywhere"
-    },
-    {
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "Allow HTTPS from anywhere"
-    },
-    {
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"  
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "Allow SSH from admin IP"
-    }
-  ]
-  
-  egress_rules = [
-    {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "Allow all outbound traffic"
-    }
-  ]
-  
-  tags = var.tags
+module "rds_instance" {
+  source                        = "../../../modules/rds/"
+  sg_name                       = var.sg_name
+  sg_description                = var.sg_description
+  sg_vpc_id                     = var.sg_vpc_id
+  sg_ingress_rules              = var.sg_ingress_rules
+  sg_tags                       = var.sg_tags
+  rds_instance_identifier       = var.rds_instance_identifier
+  rds_instance_engine           = var.rds_instance_engine
+  rds_instance_class            = var.rds_instance_class
+  rds_instance_allocated_storage= var.rds_instance_allocated_storage
+  rds_instance_subnet_group     = var.rds_instance_subnet_group
+  rds_instance_multi_az         = var.rds_instance_multi_az
+  rds_instance_storage_encrypted= var.rds_instance_storage_encrypted
+  rds_instance_kms_key_id       = var.rds_instance_kms_key_id
+  rds_instance_db_name          = var.rds_instance_db_name
+  rds_instance_tags             = var.rds_instance_tags
+  subnet_group_name             = var.subnet_group_name
+  subnet_ids                    = var.subnet_ids
+  parameter_group_name          = var.parameter_group_name
+  parameter_group_family        = var.parameter_group_family
+  rds_secret_id                 = var.rds_secret_id
+  rds_instance_parameter_group_family = var.rds_instance_parameter_group_family
+  rds_instance_parameter_description = var.rds_instance_parameter_description
+  rds_username                  = var.rds_username
+  # my_db_proxy                 = var.my_db_proxy
+  # proxy_role_arn              = var.proxy_role_arn
 }
-
-module "web_server_1" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=main"
-  
-  name_prefix                = "${var.project_name}-web-server-1"
-  ami_id                     = var.web_server_ami
-  instance_type              = var.web_server_instance_type
-  subnet_id                  = module.vpc.public_subnet_ids[0]
-  security_group_ids         = [module.web_server_sg.security_group_id]
-  key_name                   = var.ssh_key_name
-  associate_public_ip_address = true
-  user_data_script          = "${path.root}/scripts/shell.sh"
-  
-  root_volume_type           = var.root_volume_type
-  root_volume_size           = var.root_volume_size
-  iam_instance_profile       = var.iam_instance_profile
-  
-  tags = var.tags
-  depends_on = [
-    module.vpc,
-    module.web_server_sg
-  ]
-}
-

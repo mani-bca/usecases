@@ -1,112 +1,132 @@
-variable "aws_region" {
-  description = "AWS region to deploy resources"
-  type        = string
+variable "secret_tags" {
+  type = map
+  default = {
+    "terraform" = "True"
+  }
 }
 
-variable "project_name" {
-  description = "Name of the project"
-  type        = string
+variable "secret_values" {
+  type = map
+  default = {
+  }
 }
 
-variable "environment" {
-  description = "Environment (dev, staging, prod)"
-  type        = string
+variable "sg_name" {}
+
+variable "sg_description" {}
+
+variable "sg_vpc_id" {}
+
+variable "sg_ingress_rules" {
+  type        = map
+}
+
+variable "sg_tags" {
+  type = map(string)
+  default = {
+    "terraform" = "True"
+  }
+}
+
+variable "rds_instance_identifier" {
+  type = string
+}
+
+variable "rds_instance_engine" {
+  type = string
+}
+
+variable "rds_instance_class" {
+  type = string
+}
+
+variable "rds_instance_allocated_storage" {
+  type = string
+}
+
+variable "rds_instance_subnet_group" {
+  type = string
+}
+
+variable "rds_instance_multi_az" {
+  type = bool
+}
+
+variable "rds_instance_storage_encrypted" {
+  type = bool
+}
+
+variable "rds_instance_kms_key_id" {
+  type = string
+}
+
+variable "rds_instance_db_name" {
+  type = string
+}
+
+variable "rds_instance_parameter_group" {
+  type = string
+}
+variable "rds_instance_parameter_description" {
+  type = string
+}
+
+variable "rds_instance_parameter_group_family" {
+  type = string
+}
+
+variable "rds_instance_tags" {
+  type = map
+  default = {
+    "terraform" = "True"
+  }
+}
+
+variable "subnet_group_name" {}
+variable "subnet_ids" {
+  type = list(string)
 }
 
 variable "tags" {
-  description = "A map of tags to add to all resources"
-  type        = map(string)
+  type = map
+  default = {
+    "terraform" = "True"
+  }
 }
 
-# VPC Variables
+variable "parameter_group_name" {
+  type = string
+}
 
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
+variable "parameter_group_family" {
+  type = string
+}
+
+variable "rds_secret_id" {
+  type  = string
+}
+
+variable "rds_username" {
   type        = string
+  sensitive   = true
 }
 
-variable "availability_zones" {
-  description = "List of availability zones"
-  type        = list(string)
-}
+# variable "my_db_proxy" {
+#   type  = string
+# }
 
-variable "public_subnet_cidrs" {
-  description = "CIDR blocks for public subnets"
-  type        = list(string)
-}
-
-variable "private_subnet_cidrs" {
-  description = "CIDR blocks for private subnets"
-  type        = list(string)
-}
-
-variable "create_nat_gateway" {
-  description = "Whether to create a NAT Gateway"
-  type        = bool
-}
-
-# EC2 Variables
-
-variable "web_server_ami" {
-  description = "AMI ID for web servers"
-  type        = string
-}
-
-variable "web_server_instance_type" {
-  description = "Instance type for web servers"
-  type        = string
-}
-
-variable "ssh_key_name" {
-  description = "Name of SSH key pair to use for EC2 instances"
-  type        = string
-}
-
-# variable "admin_ip_cidr" {
-#   description = "CIDR block for admin IP (for SSH access)"
+# variable "proxy_role_arn" {
 #   type        = string
 # }
 
-variable "root_volume_type" {
-  description = "Volume type for the root block device"
-  type        = string
-}
+# variable "secret_name" {
+#   type = string
+# }
 
-variable "root_volume_size" {
-  description = "Volume size for the root block device in GB"
-  type        = number
-}
+# variable "secret_description" {
+#   type = string
+# }
 
-variable "iam_instance_profile" {
-  description = "IAM instance profile to attach to the instance"
-  type        = string
-}
-# variable for sg
-variable "alb_sg_ingress_cidr" {
-  description = "Ingress rules for ALB"
-  type = list(object({
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
-    description = string
-  }))
-  default = []
-}
-
-variable "alb_sg_egress_rules" {
-  description = "Egress rules for ALB"
-  type = list(object({
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
-    description = string
-  }))
-  default = []
-}
-variable "ssh_allowed_cidrs" {
-  description = "CIDR blocks allowed to SSH to instances"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
-}
+# variable "secret_rc_window" {
+#   type = string
+# }
