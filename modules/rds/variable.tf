@@ -1,3 +1,7 @@
+variable "vpc_security_group_ids" {
+  type = list(string)
+}
+
 # variable "secret_name" {
 #   type = string
 # }
@@ -22,6 +26,8 @@ variable "secret_values" {
   sensitive = true
   default   = {}
 }
+
+
 ##################security group
 # variable "sg_name" {}
 
