@@ -17,7 +17,7 @@ terraform {
   required_version = ">= 1.9.0"
 }
 provider "aws" {
-  region = us-east-1
+  region = "us-east-1"
   
   default_tags {
     tags = {
