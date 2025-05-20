@@ -19,6 +19,6 @@ module "aurora_postgres" {
   parameter_group_family        = var.parameter_group_family
   subnet_ids                    = var.subnet_ids
   subnet_group_name             = var.subnet_group_name
-  vpc_security_group_ids        = var.vpc_security_group_ids
+  vpc_security_group_ids        = module.sg_rds.sg_id
   rds_instance_tags             = var.rds_instance_tags
 }
