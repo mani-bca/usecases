@@ -19,6 +19,7 @@ resource "aws_rds_cluster" "aurora_cluster" {
   cluster_identifier      = var.rds_instance_identifier
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
+  engine_version = "15.3"
   master_username         = jsondecode(aws_secretsmanager_secret_version.rds_secret_version.secret_string)["username"]
   master_password         = jsondecode(aws_secretsmanager_secret_version.rds_secret_version.secret_string)["password"]
   database_name           = var.rds_instance_db_name
