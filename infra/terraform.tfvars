@@ -40,13 +40,13 @@ subnet_ids = [
 ]
  
 rds_instance_identifier       = "rds-postgres-rds-dev"
-rds_instance_engine           = "postgres"
-rds_instance_class            = "db.t3.medium"
+rds_instance_engine           = "aurora-postgresql"
+rds_instance_class            = "db.r5.large"
 rds_instance_allocated_storage= "20"
 rds_instance_subnet_group     = "rds-subnet-group"
 rds_instance_multi_az         = true
 rds_instance_storage_encrypted= true
-rds_instance_kms_key_id       = "arn:aws:kms:us-east-1:116762271881:key/feb03c78-5883-45af-b385-2a8f6af95851"
+# rds_instance_kms_key_id       = "arn:aws:kms:us-east-1:116762271881:key/feb03c78-5883-45af-b385-2a8f6af95851"
 rds_instance_db_name          = "rds"
 rds_instance_parameter_group  = "rds-pg-param-group"
 rds_instance_tags = {

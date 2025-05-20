@@ -64,9 +64,9 @@ variable "rds_instance_storage_encrypted" {
   type = bool
 }
 
-variable "rds_instance_kms_key_id" {
-  type = string
-}
+# variable "rds_instance_kms_key_id" {
+#   type = string
+# }
 
 variable "rds_instance_db_name" {
   type = string

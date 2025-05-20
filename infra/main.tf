@@ -16,7 +16,7 @@ module "rds_instance" {
   rds_instance_subnet_group     = var.rds_instance_subnet_group
   rds_instance_multi_az         = var.rds_instance_multi_az
   rds_instance_storage_encrypted= var.rds_instance_storage_encrypted
-  rds_instance_kms_key_id       = var.rds_instance_kms_key_id
+  # rds_instance_kms_key_id       = var.rds_instance_kms_key_id
   rds_instance_db_name          = var.rds_instance_db_name
   rds_instance_tags             = var.rds_instance_tags
   subnet_group_name             = var.subnet_group_name
@@ -29,4 +29,5 @@ module "rds_instance" {
   rds_username                  = var.rds_username
   # my_db_proxy                 = var.my_db_proxy
   # proxy_role_arn              = var.proxy_role_arn
+  vpc_security_group_ids       = [module.sg_rds.sg_out]
 }

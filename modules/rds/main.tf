@@ -27,7 +27,7 @@ resource "aws_db_instance" "my_rds_instance" {
   vpc_security_group_ids    = var.vpc_security_group_ids
   multi_az                  = var.rds_instance_multi_az
   storage_encrypted         = var.rds_instance_storage_encrypted
-  kms_key_id                = var.rds_instance_kms_key_id
+  # kms_key_id                = var.rds_instance_kms_key_id
   db_name                   = var.rds_instance_db_name
   parameter_group_name      = var.parameter_group_name
   tags                      = var.rds_instance_tags
