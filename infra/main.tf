@@ -1,10 +1,10 @@
 module "sg_rds" {
   source            = "../modules/sg"
-  name              = var.sg_name
-  description       = var.sg_description
-  vpc_id            = var.sg_vpc_id
+  sg_name           = var.sg_name
+  sg_description    = var.sg_description
+  sg_vpc_id         = var.sg_vpc_id
   sg_ingress_rules  = var.sg_ingress_rules
-  tags              = var.sg_tags
+  sg_tags           = var.sg_tags
 }
 
 module "rds_instance" {

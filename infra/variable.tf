@@ -1,3 +1,10 @@
+variable "aws_region"{
+  type = string
+}
+variable "environment"{
+  type = string
+}
+
 variable "secret_tags" {
   type = map
   default = {

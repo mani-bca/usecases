@@ -1,6 +1,5 @@
 # General settings
 aws_region   = "us-east-1"
-project_name = "usecase-11"
 environment  = "dev"
 ##security group
 sg_name           = "rds-sg-dev"

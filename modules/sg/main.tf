@@ -24,5 +24,5 @@ resource "aws_security_group" "security_group" {
     }
   }
 
-  tags = var.tags
+  tags = sg_tags
 }
