@@ -1,26 +1,14 @@
-# VPC Module
-module "vpc" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/vpc?ref=main"
-  name                 = "${var.project_name}-${var.environment}"
-  vpc_cidr             = var.vpc_cidr
-  availability_zones   = var.availability_zones
-  public_subnet_cidrs  = var.public_subnet_cidrs
-  private_subnet_cidrs = var.private_subnet_cidrs
-  create_nat_gateway   = var.create_nat_gateway
-  
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
+module "sg_rds" {
+  source            = "../modules/sg"
+  name              = var.sg_name
+  description       = var.sg_description
+  vpc_id            = var.sg_vpc_id
+  sg_ingress_rules  = var.sg_ingress_rules
+  tags              = var.sg_tags
 }
 
 module "rds_instance" {
-  source                        = "../../../modules/rds/"
-  sg_name                       = var.sg_name
-  sg_description                = var.sg_description
-  sg_vpc_id                     = var.sg_vpc_id
-  sg_ingress_rules              = var.sg_ingress_rules
-  sg_tags                       = var.sg_tags
+  source                        = "../modules/rds/"
   rds_instance_identifier       = var.rds_instance_identifier
   rds_instance_engine           = var.rds_instance_engine
   rds_instance_class            = var.rds_instance_class

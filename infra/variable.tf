@@ -10,7 +10,7 @@ variable "secret_values" {
   default = {
   }
 }
-
+################security group
 variable "sg_name" {}
 
 variable "sg_description" {}
@@ -28,6 +28,7 @@ variable "sg_tags" {
   }
 }
 
+#############RDS
 variable "rds_instance_identifier" {
   type = string
 }

@@ -22,23 +22,23 @@ variable "secret_values" {
   sensitive = true
   default   = {}
 }
+##################security group
+# variable "sg_name" {}
 
-variable "sg_name" {}
+# variable "sg_description" {}
 
-variable "sg_description" {}
+# variable "sg_vpc_id" {}
 
-variable "sg_vpc_id" {}
+# variable "sg_ingress_rules" {
+#   type        = map
+# }
 
-variable "sg_ingress_rules" {
-  type        = map
-}
-
-variable "sg_tags" {
-  type = map(string)
-  default = {
-    "terraform" = "True"
-  }
-}
+# variable "sg_tags" {
+#   type = map(string)
+#   default = {
+#     "terraform" = "True"
+#   }
+# }
 
 variable "rds_instance_identifier" {
   type = string
