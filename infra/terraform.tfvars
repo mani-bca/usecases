@@ -38,27 +38,19 @@ subnet_ids = [
   "subnet-0aade558b97319d86",
    "subnet-0211abeb4ee6ef699"
 ]
- 
-rds_instance_identifier       = "rds-postgres-rds-dev"
-rds_instance_engine           = "aurora-postgresql"
-rds_instance_class            = "db.r5.large"
-rds_instance_allocated_storage= "20"
-rds_instance_subnet_group     = "rds-subnet-group"
-rds_instance_multi_az         = false
-rds_instance_storage_encrypted= true
-# rds_instance_kms_key_id       = "arn:aws:kms:us-east-1:116762271881:key/feb03c78-5883-45af-b385-2a8f6af95851"
-rds_instance_db_name          = "rds"
-rds_instance_parameter_group  = "rds-pg-param-group"
+ region                          = "us-east-1"
+rds_username                    = "auroraadmin"
+rds_instance_identifier         = "aurora-pg-cluster"
+rds_instance_class              = "db.r6g.large"
+rds_instance_db_name            = "auroradb"
+rds_instance_multi_az           = true
+rds_instance_storage_encrypted  = true
+parameter_group_name            = "aurora-pg-custom"
+parameter_group_family          = "aurora-postgresql15"
+subnet_ids                      = ["subnet-abc123", "subnet-def456"]
+subnet_group_name               = "aurora-pg-subnet-group"
+vpc_security_group_ids          = ["sg-abc123"]
 rds_instance_tags = {
-  "ApplicationName" = "rds",
-  "Automated"       = "True",
+  Environment = "dev"
+  Project     = "aurora-postgres"
 }
- 
-parameter_group_name = "rds-pg-param-group"
-parameter_group_family = "postgres16"
-rds_secret_id = "rds-rds-postgres-secret-dev"
-  
-rds_instance_parameter_description = "Description of the parameter group"
-rds_instance_parameter_group_family = "postgres16"
- 
-rds_username = "postgresuser"
