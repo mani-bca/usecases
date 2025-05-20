@@ -1,8 +1,11 @@
-output "secret_arn" {
-  value = aws_secretsmanager_secret.rds_secret.arn #module.secrets.secret_arn
+output "aurora_cluster_endpoint" {
+  value = aws_rds_cluster.aurora_cluster.endpoint
 }
 
-output "secret_values" {
-  value = jsondecode(aws_secretsmanager_secret_version.rds_secret_version.secret_string) #module.secrets.secret_values
-  sensitive   = true
+output "aurora_reader_endpoint" {
+  value = aws_rds_cluster.aurora_cluster.reader_endpoint
+}
+
+output "rds_secret_arn" {
+  value = aws_secretsmanager_secret.rds_secret.arn
 }
