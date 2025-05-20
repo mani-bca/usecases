@@ -45,5 +45,5 @@ variable "parameter_group_name" {}
 variable "parameter_group_family" {}
 variable "subnet_ids" { type = list(string) }
 variable "subnet_group_name" {}
-variable "vpc_security_group_ids" { type = list(string) }
+# variable "vpc_security_group_ids" { type = list(string) }
 variable "rds_instance_tags" { type = map(string) }
