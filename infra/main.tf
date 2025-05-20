@@ -8,7 +8,7 @@ module "sg_rds" {
 }
 
 module "aurora_postgres" {
-  source                        = "./modules/aurora_postgres"
+  source                        = "../modules/aurora_postgres"
   rds_username                  = var.rds_username
   rds_instance_identifier       = var.rds_instance_identifier
   rds_instance_class            = var.rds_instance_class

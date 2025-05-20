@@ -1,5 +1,4 @@
 # General settings
-aws_region   = "us-east-1"
 environment  = "dev"
 ##security group
 sg_name           = "rds-sg-dev"
@@ -33,12 +32,8 @@ sg_ingress_rules = {
 	}
 }
  
-subnet_group_name = "rds-subnet-group-dev"
-subnet_ids = [
-  "subnet-0aade558b97319d86",
-   "subnet-0211abeb4ee6ef699"
-]
- region                          = "us-east-1"
+
+region                          = "us-east-1"
 rds_username                    = "auroraadmin"
 rds_instance_identifier         = "aurora-pg-cluster"
 rds_instance_class              = "db.r6g.large"
@@ -47,7 +42,7 @@ rds_instance_multi_az           = true
 rds_instance_storage_encrypted  = true
 parameter_group_name            = "aurora-pg-custom"
 parameter_group_family          = "aurora-postgresql15"
-subnet_ids                      = ["subnet-abc123", "subnet-def456"]
+subnet_ids = [ "subnet-0aade558b97319d86", "subnet-0211abeb4ee6ef699"]
 subnet_group_name               = "aurora-pg-subnet-group"
 vpc_security_group_ids          = ["sg-abc123"]
 rds_instance_tags = {
