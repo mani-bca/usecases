@@ -21,6 +21,7 @@ resource "aws_rds_cluster" "aurora_cluster" {
   engine_mode             = "provisioned"
   engine_version = "15.3"
   skip_final_snapshot       = false
+  final_snapshot_identifier = "aurora-pg-cluster-final-snapshot-2025-05-20"
   master_username         = jsondecode(aws_secretsmanager_secret_version.rds_secret_version.secret_string)["username"]
   master_password         = jsondecode(aws_secretsmanager_secret_version.rds_secret_version.secret_string)["password"]
   database_name           = var.rds_instance_db_name
