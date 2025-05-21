@@ -1,4 +1,4 @@
-name: Terraform 12 th usecase
+name: Terraform 14 & 15 usecase
 
 on:
   pull_request:
