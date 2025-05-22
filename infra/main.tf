@@ -19,38 +19,32 @@ module "vpc" {
 }
 
 module "lambda_sg" {
-  source      = "./modules/security_group"
-  name        = "lambda-sg"
-  description = "SG for Lambda"
-  vpc_id      = module.vpc.vpc_id
+  source        = "./modules/security_group"
+  name          = "lambda-sg"
+  description   = "SG for Lambda"
+  vpc_id        = module.vpc.vpc_id
   ingress_rules = []
-  egress_rules = [{
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }]
-  tags = var.tags
+  egress_rules  = var.lambda_egress_rules
+  tags          = var.tags
 }
 
 module "rds_sg" {
-  source      = "./modules/security_group"
-  name        = "rds-sg"
-  description = "SG for RDS PostgreSQL"
-  vpc_id      = module.vpc.vpc_id
-  ingress_rules = [{
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [module.lambda_sg.security_group_id]
-  }]
-  egress_rules = [{
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }]
-  tags = var.tags
+  source        = "./modules/security_group"
+  name          = "rds-sg"
+  description   = "SG for RDS"
+  vpc_id        = module.vpc.vpc_id
+
+  ingress_rules = [
+    {
+      from_port       = 5432
+      to_port         = 5432
+      protocol        = "tcp"
+      security_groups = [module.lambda_sg.security_group_id]
+    }
+  ]
+
+  egress_rules = var.rds_egress_rules
+  tags         = var.tags
 }
 
 module "rds_postgres" {
