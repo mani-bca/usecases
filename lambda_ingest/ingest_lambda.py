@@ -13,12 +13,14 @@ REGION = os.environ.get('AWS_REGION', 'us-east-1')
 S3_BUCKET = os.environ['RAW_BUCKET']
 
 def get_db_credentials():
+    logger.info("Fetching database credentials from Secrets Manager")
     client = boto3.client('secretsmanager', region_name=REGION)
     secret = client.get_secret_value(SecretId=SECRET_NAME)
     return eval(secret['SecretString'])
 
 def connect_db():
     creds = get_db_credentials()
+    logger.info("Connecting to PostgreSQL database")
     return psycopg2.connect(
         host=creds['host'],
         database=creds['dbname'],
@@ -28,47 +30,74 @@ def connect_db():
     )
 
 def chunk_text(text, max_tokens=500):
+    logger.info("Starting tokenization and chunking")
     tokenizer = tiktoken.get_encoding("cl100k_base")
     tokens = tokenizer.encode(text)
     chunks = [tokens[i:i+max_tokens] for i in range(0, len(tokens), max_tokens)]
+    logger.info(f"Chunked into {len(chunks)} pieces")
     return [tokenizer.decode(chunk) for chunk in chunks]
 
 def lambda_handler(event, context):
-    file_key = event.get('file_key')
-    if not file_key:
-        logger.error("Missing 'file_key' in event")
-        return {"error": "Missing 'file_key'"}
+    try:
+        file_key = event.get('file_key')
+        if not file_key:
+            logger.error("Missing 'file_key' in the Lambda event input")
+            return {"error": "Missing 'file_key'"}
 
-    logger.info(f"Starting PDF ingest for file: {file_key}")
-    s3 = boto3.client('s3')
-    obj = s3.get_object(Bucket=S3_BUCKET, Key=file_key)
-    pdf_bytes = obj['Body'].read()
+        logger.info(f"Fetching file from S3: {file_key}")
+        s3 = boto3.client('s3')
+        obj = s3.get_object(Bucket=S3_BUCKET, Key=file_key)
+        file_bytes = obj['Body'].read()
+        file_size_kb = len(file_bytes) / 1024
+        logger.info(f"File fetched. Size: {file_size_kb:.2f} KB")
 
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-    text = "\n".join(page.get_text() for page in doc)
-    chunks = chunk_text(text)
+        ext = os.path.splitext(file_key)[-1].lower()
 
-    conn = connect_db()
-    cur = conn.cursor()
+        if ext == ".pdf":
+            logger.info("Extracting text from PDF using PyMuPDF")
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
+            text = "\n".join(page.get_text() for page in doc)
+        elif ext == ".txt":
+            logger.info("Reading plain text file")
+            text = file_bytes.decode("utf-8")
+        else:
+            logger.warning(f"Unsupported file type: {ext}")
+            return {"error": f"Unsupported file type: {ext}", "file": file_key}
 
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS documents (
-            id SERIAL PRIMARY KEY,
-            chunk TEXT,
-            embedding VECTOR(384)
-        );
-    """)
+        if not text.strip():
+            logger.warning("No text could be extracted from file")
+            return {"warning": "No text extracted from file", "file": file_key}
 
-    for chunk in chunks:
-        cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, NULL)", (chunk,))
+        chunks = chunk_text(text)
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn = connect_db()
+        cur = conn.cursor()
 
-    logger.info(f"Successfully inserted {len(chunks)} chunks")
-    return {
-        "status": "success",
-        "chunks_stored": len(chunks),
-        "file": file_key
-    }
+        logger.info("Creating documents table if not exists")
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS documents (
+                id SERIAL PRIMARY KEY,
+                chunk TEXT,
+                embedding VECTOR(384)
+            );
+        """)
+
+        logger.info("Inserting chunks into database")
+        for chunk in chunks:
+            cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, NULL)", (chunk,))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        logger.info(f"Successfully inserted {len(chunks)} chunks for file: {file_key}")
+        return {
+            "status": "success",
+            "chunks_stored": len(chunks),
+            "file": file_key,
+            "file_size_kb": round(file_size_kb, 2)
+        }
+
+    except Exception as e:
+        logger.exception("Unhandled exception occurred")
+        return {"error": str(e), "file": file_key}
