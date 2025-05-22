@@ -19,7 +19,7 @@ module "vpc" {
 }
 
 module "lambda_sg" {
-  source        = "./modules/security_group"
+  source        = "../modules/security_group"
   name          = "lambda-sg"
   description   = "SG for Lambda"
   vpc_id        = module.vpc.vpc_id
@@ -29,7 +29,7 @@ module "lambda_sg" {
 }
 
 module "rds_sg" {
-  source        = "./modules/security_group"
+  source        = "../modules/security_group"
   name          = "rds-sg"
   description   = "SG for RDS"
   vpc_id        = module.vpc.vpc_id
