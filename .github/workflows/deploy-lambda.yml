@@ -1,0 +1,62 @@
+name: Build and Upload Lambda Packages
+
+on:
+  push:
+    paths:
+      - 'lambda_ingest/**'
+      - 'lambda_search/**'
+      - '.github/workflows/deploy-lambdas.yml'
+
+env:
+  AWS_REGION: us-east-1
+  LAMBDA_CODE_BUCKET: your-lambda-code-bucket-name
+
+jobs:
+  package-and-upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip curl
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Package Ingest Lambda
+        run: |
+          cd lambda_ingest
+          pip install -r requirements.txt -t .
+          zip -r ../ingest.zip .
+          cd ..
+
+      - name: Package Search Lambda
+        run: |
+          cd lambda_search
+          pip install -r requirements.txt -t .
+          zip -r ../search.zip .
+          cd ..
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp ingest.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/ingest.zip
+          aws s3 cp search.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip
