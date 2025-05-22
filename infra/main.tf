@@ -16,6 +16,9 @@ module "vpc" {
   tags = {
     Name = var.name
   }
+  depends_on = [
+    module.raw_s3_bucket
+  ]
 }
 
 module "lambda_sg" {
@@ -26,6 +29,11 @@ module "lambda_sg" {
   ingress_rules = []
   egress_rules  = var.lambda_egress_rules
   tags          = var.tags
+  depends_on = [
+    module.raw_s3_bucket,
+    module.vpc
+  ]
+
 }
 
 module "rds_sg" {
@@ -45,6 +53,10 @@ module "rds_sg" {
 
   egress_rules = var.rds_egress_rules
   tags         = var.tags
+  depends_on = [
+    module.raw_s3_bucket,
+    module.vpc
+  ]
 }
 
 module "rds_postgres" {
@@ -56,6 +68,11 @@ module "rds_postgres" {
   subnet_ids        = module.vpc.private_subnet_ids
   vpc_security_group_ids = [module.rds_sg.security_group_id] 
   tags              = var.tags
+  depends_on = [
+    module.raw_s3_bucket,
+    module.vpc,
+    module.rds_sg
+  ]
 }
 
 module "db_secret" {
@@ -92,6 +109,15 @@ module "lambda_ingest" {
     security_group_ids = [module.lambda_sg.security_group_id]
   }
   tags = var.tags
+
+  depends_on = [
+    module.raw_s3_bucket,
+    module.vpc,
+    module.lambda_sg,
+    module.lambda_iam_role,
+    module.db_secret
+  ]
+
 }
 
 module "lambda_search" {
@@ -110,6 +136,16 @@ module "lambda_search" {
     security_group_ids = [module.lambda_sg.security_group_id] 
   }
   tags = var.tags
+
+  depends_on = [
+    module.raw_s3_bucket,
+    module.vpc,
+    module.lambda_sg,
+    module.lambda_iam_role,
+    module.db_secret
+  ]
+
+
 }
 
 module "search_api" {
@@ -117,4 +153,13 @@ module "search_api" {
   api_name            = var.api_name
   lambda_function_arn = module.lambda_search.lambda_arn
   tags                = var.tags
+  depends_on = [
+    module.raw_s3_bucket,
+    module.vpc,
+    module.lambda_sg,
+    module.lambda_iam_role,
+    module.db_secret,
+    module.lambda_search
+  ]
+
 }
