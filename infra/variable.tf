@@ -1,8 +1,34 @@
 variable "raw_bucket_name" { type = string }
 variable "processed_bucket_name" { type = string }
 
-variable "vpc_cidr" { type = string }
-variable "subnet_ids" { type = list(string) }
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+}
+
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for public subnets"
+  type        = list(string)
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+}
+
+variable "create_nat_gateway" {
+  description = "Whether to create a NAT Gateway"
+  type        = bool
+}
+variable "name" {
+  description = "VPC name"
+  type        = string
+}
 
 variable "db_name" { type = string }
 variable "db_username" { type = string }

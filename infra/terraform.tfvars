@@ -1,8 +1,12 @@
-raw_bucket_name         = "semantic-search-raw"
-processed_bucket_name   = "semantic-search-processed"
+raw_bucket_name         = "semantic-search-raw-ddd"
+processed_bucket_name   = "semantic-search-processed-ddd"
 
-vpc_cidr                = "10.0.0.0/16"
-subnet_ids              = ["10.0.1.0/24", "10.0.2.0/24"]
+name = "demo"
+vpc_cidr             = "10.0.0.0/16"
+availability_zones   = ["us-east-1a", "us-east-1b"]
+public_subnet_cidrs  = ["10.0.6.0/24", "10.0.7.0/24"]
+private_subnet_cidrs = ["10.0.4.0/24", "10.0.5.0/24"]
+create_nat_gateway   = false
 
 db_name                 = "semanticdb"
 db_username             = "postgres"
@@ -10,7 +14,7 @@ db_password             = "supersecretpassword"
 db_instance_class       = "db.t3.micro"
 db_secret_name          = "semantic-search-db-credentials"
 
-lambda_code_bucket      = "lambda-code-bucket"
+lambda_code_bucket      = "lambda-code-bucket-ddd"
 ingest_lambda_key       = "ingest.zip"
 search_lambda_key       = "search.zip"
 

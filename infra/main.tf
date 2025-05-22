@@ -5,12 +5,18 @@ module "raw_s3_bucket" {
 }
 
 module "vpc" {
-  source     = "./modules/vpc"
-  vpc_cidr   = var.vpc_cidr
-  subnet_ids = var.subnet_ids
-  tags       = var.tags
+  source                = "../module/vpc"
+  name                 = "${var.name}-vpc"
+  vpc_cidr             = var.vpc_cidr
+  availability_zones   = var.availability_zones
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
+  create_nat_gateway   = var.create_nat_gateway
+  
+  tags = {
+    Name = var.name
+  }
 }
-
 module "rds_postgres" {
   source            = "./modules/rds_postgresql"
   db_name           = var.db_name
