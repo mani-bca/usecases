@@ -5,7 +5,7 @@ module "raw_s3_bucket" {
 }
 
 module "vpc" {
-  source                = "../module/vpc"
+  source                = "../modules/vpc"
   name                 = "${var.name}-vpc"
   vpc_cidr             = var.vpc_cidr
   availability_zones   = var.availability_zones
