@@ -37,10 +37,10 @@ variable "layers" {
   default = []
 }
 
-# variable "reserved_concurrent_executions" {
-#   type    = number
-#   default = 2
-# }
+variable "reserved_concurrent_executions" {
+  type    = number
+  default = -1
+}
 
 variable "timeout" {
   type    = number
