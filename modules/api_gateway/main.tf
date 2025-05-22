@@ -1,24 +1,25 @@
-resource "aws_db_subnet_group" "this" {
-  name       = "${var.db_name}-subnet-group"
-  subnet_ids = var.subnet_ids
-  tags       = var.tags
+resource "aws_apigatewayv2_api" "this" {
+  name          = var.api_name
+  protocol_type = "HTTP"
+  tags          = var.tags
 }
 
-resource "aws_db_instance" "this" {
-  identifier              = var.db_name
-  engine                  = "postgres"
-  engine_version          = var.engine_version
-  instance_class          = var.db_instance_class
-  allocated_storage       = var.allocated_storage
-  username                = var.db_username
-  password                = var.db_password
-  db_name                 = var.db_name
-  db_subnet_group_name    = aws_db_subnet_group.this.name
-  vpc_security_group_ids  = var.vpc_security_group_ids
-  multi_az                = var.multi_az
-  storage_encrypted       = var.storage_encrypted
-  publicly_accessible     = var.publicly_accessible
-  skip_final_snapshot     = true
-  monitoring_interval     = var.monitoring_interval
-  tags                    = var.tags
+resource "aws_apigatewayv2_integration" "this" {
+  api_id             = aws_apigatewayv2_api.this.id
+  integration_type   = "AWS_PROXY"
+  integration_uri    = var.lambda_function_arn
+  integration_method = "POST"
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_route" "this" {
+  api_id    = aws_apigatewayv2_api.this.id
+  route_key = "POST /search"
+  target    = "integrations/${aws_apigatewayv2_integration.this.id}"
+}
+
+resource "aws_apigatewayv2_stage" "this" {
+  api_id      = aws_apigatewayv2_api.this.id
+  name        = var.stage_name
+  auto_deploy = true
 }
