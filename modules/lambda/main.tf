@@ -17,12 +17,13 @@ resource "aws_lambda_function" "this" {
     security_group_ids = var.vpc_config.security_group_ids
   }
 
-  dynamic "layers" {
-    for_each = var.layers
-    content {
-      arn = layers.value
-    }
-  }
+  # dynamic "layers" {
+  #   for_each = var.layers
+  #   content {
+  #     arn = layers.value
+  #   }
+  # }
+  layers = var.layers
 
   reserved_concurrent_executions = var.reserved_concurrent_executions
 
