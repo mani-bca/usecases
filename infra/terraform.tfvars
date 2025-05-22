@@ -8,6 +8,26 @@ public_subnet_cidrs  = ["10.0.6.0/24", "10.0.7.0/24"]
 private_subnet_cidrs = ["10.0.4.0/24", "10.0.5.0/24"]
 create_nat_gateway   = false
 
+lambda_egress_rules = [
+  {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+]
+
+rds_ingress_rules = []
+
+rds_egress_rules = [
+  {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+]
+
 db_name                 = "semanticdb"
 db_username             = "postgres"
 db_password             = "supersecretpassword"
