@@ -40,7 +40,7 @@ search_lambda_key       = "search.zip"
 
 ingest_lambda_name      = "semantic-ingest"
 search_lambda_name      = "semantic-search"
-ingest_lambda_handler   = "main.lambda.handler"
+# ingest_lambda_handler   = "main.lambda.handler"
 search_lambda_handler   = "search_lambda.handler"
 
 lambda_runtime          = "python3.11"

@@ -67,9 +67,9 @@ variable "ingest_lambda_name" {
 variable "search_lambda_name" { 
   type = string 
 }
-variable "ingest_lambda_handler" { 
-  type = string 
-}
+# variable "ingest_lambda_handler" { 
+#   type = string 
+# }
 variable "search_lambda_handler" { 
   type = string 
 }

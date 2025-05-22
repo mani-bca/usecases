@@ -7,9 +7,9 @@ variable "s3_bucket" {
 variable "s3_key" { 
   type = string 
 }
-variable "handler" { 
-  type = string 
-}
+# variable "handler" { 
+#   type = string 
+# }
 variable "runtime" { 
   type = string 
 }
