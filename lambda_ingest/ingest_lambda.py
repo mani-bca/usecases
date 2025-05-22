@@ -2,7 +2,11 @@ import boto3
 import os
 import psycopg2
 import fitz  # PyMuPDF
-import tiktoken  # or use nltk if preferred
+import tiktoken
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 SECRET_NAME = os.environ['DB_SECRET_NAME']
 REGION = os.environ.get('AWS_REGION', 'us-east-1')
@@ -27,14 +31,15 @@ def chunk_text(text, max_tokens=500):
     tokenizer = tiktoken.get_encoding("cl100k_base")
     tokens = tokenizer.encode(text)
     chunks = [tokens[i:i+max_tokens] for i in range(0, len(tokens), max_tokens)]
-    decoded_chunks = [tokenizer.decode(chunk) for chunk in chunks]
-    return decoded_chunks
+    return [tokenizer.decode(chunk) for chunk in chunks]
 
 def lambda_handler(event, context):
     file_key = event.get('file_key')
     if not file_key:
-        return {"error": "Missing 'file_key' in event"}
+        logger.error("Missing 'file_key' in event")
+        return {"error": "Missing 'file_key'"}
 
+    logger.info(f"Starting PDF ingest for file: {file_key}")
     s3 = boto3.client('s3')
     obj = s3.get_object(Bucket=S3_BUCKET, Key=file_key)
     pdf_bytes = obj['Body'].read()
@@ -45,11 +50,14 @@ def lambda_handler(event, context):
 
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute(\"\"\"CREATE TABLE IF NOT EXISTS documents (
-        id SERIAL PRIMARY KEY,
-        chunk TEXT,
-        embedding VECTOR(384)
-    );\"\"\")
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS documents (
+            id SERIAL PRIMARY KEY,
+            chunk TEXT,
+            embedding VECTOR(384)
+        );
+    """)
 
     for chunk in chunks:
         cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, NULL)", (chunk,))
@@ -58,4 +66,9 @@ def lambda_handler(event, context):
     cur.close()
     conn.close()
 
-    return {"status": "success", "chunks_stored": len(chunks)}
+    logger.info(f"Successfully inserted {len(chunks)} chunks")
+    return {
+        "status": "success",
+        "chunks_stored": len(chunks),
+        "file": file_key
+    }
