@@ -44,10 +44,10 @@ variable "reserved_concurrent_executions" {
 
 variable "timeout" {
   type    = number
-  default = 30
+  default = 120
 }
 
 variable "memory_size" {
   type    = number
-  default = 128
+  default = 512
 }
