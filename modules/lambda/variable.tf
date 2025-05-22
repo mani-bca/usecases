@@ -39,7 +39,7 @@ variable "layers" {
 
 variable "reserved_concurrent_executions" {
   type    = number
-  default = 5
+  default = 2
 }
 
 variable "timeout" {
