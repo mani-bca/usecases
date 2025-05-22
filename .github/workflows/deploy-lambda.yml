@@ -9,7 +9,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  LAMBDA_CODE_BUCKET: your-lambda-code-bucket-name
+  LAMBDA_CODE_BUCKET: lambda-code-bucket-ddd
 
 jobs:
   package-and-upload:
