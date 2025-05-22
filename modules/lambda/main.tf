@@ -25,7 +25,7 @@ resource "aws_lambda_function" "this" {
   # }
   layers = var.layers
 
-  reserved_concurrent_executions = var.reserved_concurrent_executions
+  # reserved_concurrent_executions = var.reserved_concurrent_executions
 
   # lifecycle {
   #   ignore_changes = [last_modified]
