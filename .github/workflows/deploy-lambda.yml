@@ -1,10 +1,11 @@
 name: Build and Upload Lambda Packages
 
 on:
-  push:
-    paths:
-      - 'lambda_ingest/**'
-      - 'lambda_search/**'
+  workflow_dispatch:
+  # push:
+  #   paths:
+  #     - 'lambda_ingest/**'
+  #     - 'lambda_search/**'
 
 env:
   AWS_REGION: us-east-1
