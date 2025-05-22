@@ -1,12 +1,19 @@
-output "api_endpoint" {
-  value = "${aws_api_gateway_stage.search_api.invoke_url}/search"
+output "raw_bucket_name" {
+  value = module.raw_s3_bucket.bucket_name
 }
 
-output "document_bucket" {
-  value = aws_s3_bucket.document_bucket.bucket
+output "db_endpoint" {
+  value = module.rds_postgres.rds_endpoint
 }
 
-output "db_connection_string" {
-  value = "postgresql://${aws_db_instance.postgres.username}:${random_password.db_password.result}@${aws_db_instance.postgres.endpoint}/${aws_db_instance.postgres.db_name}"
-  sensitive = true
+output "lambda_search_url" {
+  value = module.search_api.api_url
+}
+
+output "db_secret_arn" {
+  value = module.db_secret.secret_arn
+}
+
+output "lambda_ingest_name" {
+  value = module.lambda_ingest.lambda_name
 }
