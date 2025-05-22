@@ -7,9 +7,10 @@ variable "s3_bucket" {
 variable "s3_key" { 
   type = string 
 }
-# variable "handler" { 
-#   type = string 
-# }
+variable "handler" { 
+  type = string
+  default = "main.lambda_handler" 
+}
 variable "runtime" { 
   type = string 
 }
