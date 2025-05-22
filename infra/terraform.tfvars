@@ -54,5 +54,5 @@ api_name                = "semantic-search-api"
 
 tags = {
   Project = "SemanticSearch"
-  Owner   = "Manivasagan"
+  Env   = "dev"
 }
