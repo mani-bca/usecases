@@ -125,7 +125,7 @@ module "lambda_search" {
   function_name   = var.search_lambda_name
   s3_bucket       = var.lambda_code_bucket
   s3_key          = var.search_lambda_key
-  handler         = var.search_lambda_handler
+  # handler         = var.search_lambda_handler
   runtime         = var.lambda_runtime
   role_arn        = module.lambda_iam_role.iam_role_arn
   environment_vars = {
