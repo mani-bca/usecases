@@ -163,3 +163,27 @@ module "search_api" {
   ]
 
 }
+# Allow S3 to invoke the Lambda
+resource "aws_lambda_permission" "allow_s3_to_invoke_lambda" {
+  statement_id  = "AllowExecutionFromS3"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_ingest.lambda_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = "arn:aws:s3:::${var.raw_bucket_name}"
+}
+
+# Attach S3 event to trigger Lambda on .pdf upload
+resource "aws_s3_bucket_notification" "lambda_trigger" {
+  bucket = var.raw_bucket_name
+
+  lambda_function {
+    lambda_function_arn = module.lambda_ingest.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_suffix       = ".pdf"
+  }
+
+  depends_on = [
+    aws_lambda_permission.allow_s3_to_invoke_lambda,
+    module.lambda_ingest
+  ]
+}
