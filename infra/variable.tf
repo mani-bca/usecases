@@ -91,3 +91,35 @@ variable "api_name" {
 variable "tags" { 
   type = map(string) 
 }
+
+variable "lambda_egress_rules" {
+  description = "Egress rules for Lambda SG"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = optional(list(string))
+  }))
+}
+
+
+variable "rds_ingress_rules" {
+  description = "Ingress rules for RDS SG"
+  type = list(object({
+    from_port       = number
+    to_port         = number
+    protocol        = string
+    security_groups = optional(list(string))
+    cidr_blocks     = optional(list(string))
+  }))
+}
+
+variable "rds_egress_rules" {
+  description = "Egress rules for RDS SG"
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = optional(list(string))
+  }))
+}
