@@ -27,9 +27,9 @@ resource "aws_lambda_function" "this" {
 
   reserved_concurrent_executions = var.reserved_concurrent_executions
 
-  lifecycle {
-    ignore_changes = [last_modified]
-  }
+  # lifecycle {
+  #   ignore_changes = [last_modified]
+  # }
 
   tags = var.tags
 }
