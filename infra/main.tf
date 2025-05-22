@@ -182,6 +182,12 @@ resource "aws_s3_bucket_notification" "lambda_trigger" {
     filter_suffix       = ".pdf"
   }
 
+  lambda_function {
+    lambda_function_arn = module.lambda_ingest.lambda_arn 
+    events              = ["s3:ObjectCreated:*"]
+    filter_suffix       = ".txt"
+  }
+
   depends_on = [
     aws_lambda_permission.allow_s3_to_invoke_lambda,
     module.lambda_ingest
