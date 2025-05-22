@@ -3,8 +3,6 @@ name: Terraform 14 & 15 usecase
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    # paths:
-    #   - 'infra/**'
   workflow_dispatch:
     inputs:
       action:
