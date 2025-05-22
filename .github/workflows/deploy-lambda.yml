@@ -1,15 +1,11 @@
-name: Build and Upload Lambda Packages
+name: Build and Upload Lambda ZIPs
 
 on:
   workflow_dispatch:
-  # push:
-  #   paths:
-  #     - 'lambda_ingest/**'
-  #     - 'lambda_search/**'
 
 env:
   AWS_REGION: us-east-1
-  LAMBDA_CODE_BUCKET: lambda-code-bucket-ddd
+  LAMBDA_CODE_BUCKET: your-lambda-code-bucket-name
 
 jobs:
   package-and-upload:
@@ -28,15 +24,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      # - name: Install AWS CLI
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y unzip curl
-      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #     unzip awscliv2.zip
-      #     sudo ./aws/install
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip curl
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
