@@ -23,7 +23,7 @@ module "rds_postgres" {
   db_username       = var.db_username
   db_password       = var.db_password
   db_instance_class = var.db_instance_class
-  subnet_ids        = module.vpc.subnet_ids
+  subnet_ids        = module.vpc.private_subnet_ids
   vpc_security_group_ids = module.vpc.security_group_ids
   tags              = var.tags
 }
@@ -58,7 +58,7 @@ module "lambda_ingest" {
     RAW_BUCKET     = var.raw_bucket_name
   }
   vpc_config = {
-    subnet_ids         = module.vpc.subnet_ids
+    subnet_ids         = module.vpc.private_subnet_ids
     security_group_ids = module.vpc.security_group_ids
   }
   tags = var.tags
@@ -76,7 +76,7 @@ module "lambda_search" {
     DB_SECRET_NAME = var.db_secret_name
   }
   vpc_config = {
-    subnet_ids         = module.vpc.subnet_ids
+    subnet_ids         = module.vpc.private_subnet_ids
     security_group_ids = module.vpc.security_group_ids
   }
   tags = var.tags
