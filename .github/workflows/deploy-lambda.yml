@@ -24,13 +24,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      # - name: Install AWS CLI
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y unzip curl
-      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #     unzip awscliv2.zip
-      #     sudo ./aws/install
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -42,15 +40,21 @@ jobs:
         run: |
           cd lambda_ingest
           pip install -r requirements.txt -t .
+          find . -type d -name "__pycache__" -exec rm -r {} +
           zip -r ../ingest.zip .
           cd ..
+          echo "Generated ingest.zip:"
+          unzip -l ingest.zip
 
       - name: Package Search Lambda
         run: |
           cd lambda_search
           pip install -r requirements.txt -t .
+          find . -type d -name "__pycache__" -exec rm -r {} +
           zip -r ../search.zip .
           cd ..
+          echo "Generated search.zip:"
+          unzip -l search.zip
 
       - name: Upload to S3
         run: |
