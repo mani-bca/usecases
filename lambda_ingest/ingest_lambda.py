@@ -2,14 +2,11 @@ import boto3
 import os
 import psycopg2
 import fitz  # PyMuPDF
-from sentence_transformers import SentenceTransformer
+import tiktoken  # or use nltk if preferred
 
 SECRET_NAME = os.environ['DB_SECRET_NAME']
 REGION = os.environ.get('AWS_REGION', 'us-east-1')
 S3_BUCKET = os.environ['RAW_BUCKET']
-
-# Load embedding model
-model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def get_db_credentials():
     client = boto3.client('secretsmanager', region_name=REGION)
@@ -26,21 +23,26 @@ def connect_db():
         port=creds['port']
     )
 
+def chunk_text(text, max_tokens=500):
+    tokenizer = tiktoken.get_encoding("cl100k_base")
+    tokens = tokenizer.encode(text)
+    chunks = [tokens[i:i+max_tokens] for i in range(0, len(tokens), max_tokens)]
+    decoded_chunks = [tokenizer.decode(chunk) for chunk in chunks]
+    return decoded_chunks
+
 def lambda_handler(event, context):
+    file_key = event.get('file_key')
+    if not file_key:
+        return {"error": "Missing 'file_key' in event"}
+
     s3 = boto3.client('s3')
-    file_key = event['file_key']  # passed in event
     obj = s3.get_object(Bucket=S3_BUCKET, Key=file_key)
-    doc_bytes = obj['Body'].read()
+    pdf_bytes = obj['Body'].read()
 
-    # Parse PDF text
-    pdf = fitz.open(stream=doc_bytes, filetype='pdf')
-    full_text = "\n".join(page.get_text() for page in pdf)
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    text = "\n".join(page.get_text() for page in doc)
+    chunks = chunk_text(text)
 
-    # Chunk text
-    chunks = [full_text[i:i+512] for i in range(0, len(full_text), 512)]
-    embeddings = model.encode(chunks)
-
-    # Store in DB
     conn = connect_db()
     cur = conn.cursor()
     cur.execute(\"\"\"CREATE TABLE IF NOT EXISTS documents (
@@ -48,10 +50,12 @@ def lambda_handler(event, context):
         chunk TEXT,
         embedding VECTOR(384)
     );\"\"\")
-    for chunk, vector in zip(chunks, embeddings):
-        cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, %s)", (chunk, vector.tolist()))
+
+    for chunk in chunks:
+        cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, NULL)", (chunk,))
+
     conn.commit()
     cur.close()
     conn.close()
 
-    return {"status": "success", "chunks_inserted": len(chunks)}
+    return {"status": "success", "chunks_stored": len(chunks)}
