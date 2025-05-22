@@ -17,6 +17,42 @@ module "vpc" {
     Name = var.name
   }
 }
+
+module "lambda_sg" {
+  source      = "./modules/security_group"
+  name        = "lambda-sg"
+  description = "SG for Lambda"
+  vpc_id      = module.vpc.vpc_id
+  ingress_rules = []
+  egress_rules = [{
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }]
+  tags = var.tags
+}
+
+module "rds_sg" {
+  source      = "./modules/security_group"
+  name        = "rds-sg"
+  description = "SG for RDS PostgreSQL"
+  vpc_id      = module.vpc.vpc_id
+  ingress_rules = [{
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [module.lambda_sg.security_group_id]
+  }]
+  egress_rules = [{
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }]
+  tags = var.tags
+}
+
 module "rds_postgres" {
   source            = "../modules/rds_postgresql"
   db_name           = var.db_name
@@ -24,7 +60,7 @@ module "rds_postgres" {
   db_password       = var.db_password
   db_instance_class = var.db_instance_class
   subnet_ids        = module.vpc.private_subnet_ids
-  vpc_security_group_ids = module.vpc.security_group_ids
+  vpc_security_group_ids = module.rds_sg.securtiy_group_id
   tags              = var.tags
 }
 
@@ -59,7 +95,7 @@ module "lambda_ingest" {
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnet_ids
-    security_group_ids = module.vpc.security_group_ids
+    security_group_ids = module.lambda_sg.securtiy_group_id
   }
   tags = var.tags
 }
@@ -77,7 +113,7 @@ module "lambda_search" {
   }
   vpc_config = {
     subnet_ids         = module.vpc.private_subnet_ids
-    security_group_ids = module.vpc.security_group_ids
+    security_group_ids = module.lambda_sg.securtiy_group_id
   }
   tags = var.tags
 }
