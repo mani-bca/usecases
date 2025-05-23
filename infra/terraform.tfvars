@@ -48,6 +48,7 @@ lambda_role_name        = "semantic-lambda-role"
 lambda_policy_arns      = [
   "arn:aws:iam::aws:policy/AWSLambdaExecute",
   "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+  "arn:aws:iam::aws:policy/service-role/AmazonS3ReadOnlyAccess",
   "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 ]
 
