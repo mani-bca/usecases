@@ -41,13 +41,13 @@ def lambda_handler(event, context):
         conn = connect_db()
         cur = conn.cursor()
 
-cur.execute("""
-    SELECT chunk, embedding <#> %s::vector AS score
-    FROM documents
-    WHERE embedding IS NOT NULL
-    ORDER BY score ASC
-    LIMIT 5;
-""", (query_vector,))
+        cur.execute("""
+            SELECT chunk, embedding <#> %s::vector AS score
+            FROM documents
+            WHERE embedding IS NOT NULL
+            ORDER BY score ASC
+            LIMIT 5;
+        """, (query_vector,))
 
         results = [{"chunk": row[0], "score": row[1]} for row in cur.fetchall()]
         cur.close()
