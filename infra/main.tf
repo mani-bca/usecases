@@ -152,6 +152,7 @@ module "search_api" {
   source              = "../modules/api_gateway"
   api_name            = var.api_name
   lambda_function_arn = module.lambda_search.lambda_arn
+  lambda_function_name = module.lambda_search.lambda_name
   tags                = var.tags
   depends_on = [
     module.raw_s3_bucket,
