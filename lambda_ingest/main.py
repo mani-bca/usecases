@@ -10,7 +10,6 @@ logger.setLevel(logging.INFO)
 
 SECRET_NAME = os.environ['DB_SECRET_NAME']
 REGION = os.environ.get('AWS_REGION', 'us-east-1')
-S3_BUCKET = os.environ['RAW_BUCKET']
 
 def get_db_credentials():
     logger.info("Fetching database credentials from Secrets Manager")
@@ -39,14 +38,14 @@ def chunk_text(text, max_tokens=500):
 
 def lambda_handler(event, context):
     try:
-        file_key = event.get('file_key')
-        if not file_key:
-            logger.error("Missing 'file_key' in the Lambda event input")
-            return {"error": "Missing 'file_key'"}
+        # Extract bucket and key from S3 event
+        record = event['Records'][0]
+        file_key = record['s3']['object']['key']
+        bucket = record['s3']['bucket']['name']
 
         logger.info(f"Fetching file from S3: {file_key}")
         s3 = boto3.client('s3')
-        obj = s3.get_object(Bucket=S3_BUCKET, Key=file_key)
+        obj = s3.get_object(Bucket=bucket, Key=file_key)
         file_bytes = obj['Body'].read()
         file_size_kb = len(file_bytes) / 1024
         logger.info(f"File fetched. Size: {file_size_kb:.2f} KB")
@@ -100,4 +99,4 @@ def lambda_handler(event, context):
 
     except Exception as e:
         logger.exception("Unhandled exception occurred")
-        return {"error": str(e), "file": file_key}
+        return {"error": str(e), "file": file_key if 'file_key' in locals() else None}
