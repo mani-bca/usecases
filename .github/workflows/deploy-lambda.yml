@@ -36,27 +36,28 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # - name: Package Ingest Lambda
-      #   run: |
-      #     cd lambda_ingest
-      #     pip install -r requirements.txt -t .
-      #     find . -type d -name "__pycache__" -exec rm -r {} +
-      #     zip -r ../ingest.zip .
-      #     cd ..
-      #     echo "Generated ingest.zip:"
-      #     unzip -l ingest.zip
-      #           aws s3 cp ingest.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/ingest.zip
-
-      - name: Package Search Lambda
+      - name: Package Ingest Lambda
         run: |
-          cd lambda_search
+          cd lambda_ingest
           pip install -r requirements.txt -t .
           find . -type d -name "__pycache__" -exec rm -r {} +
-          zip -r ../search.zip .
+          zip -r ../ingest.zip .
           cd ..
-          echo "Generated search.zip:"
-          unzip -l search.zip
+          echo "Generated ingest.zip:"
+          unzip -l ingest.zip
+
+
+      # - name: Package Search Lambda
+      #   run: |
+      #     cd lambda_search
+      #     pip install -r requirements.txt -t .
+      #     find . -type d -name "__pycache__" -exec rm -r {} +
+      #     zip -r ../search.zip .
+      #     cd ..
+      #     echo "Generated search.zip:"
+      #     unzip -l search.zip
+      #     aws s3 cp search.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip
 
       - name: Upload to S3
         run: |
-          aws s3 cp search.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip
+          aws s3 cp ingest.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/ingest.zip
