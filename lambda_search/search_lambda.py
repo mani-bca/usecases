@@ -25,17 +25,23 @@ def lambda_handler(event, context):
     if not query_vector or not isinstance(query_vector, list):
         return {"error": "Missing or invalid 'query_vector'"}
 
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute(\"\"\"
-        SELECT chunk, embedding <#> %s AS score
-        FROM documents
-        WHERE embedding IS NOT NULL
-        ORDER BY score
-        LIMIT 5;
-    \"\"\", (query_vector,))
-    results = [{"chunk": row[0], "score": row[1]} for row in cur.fetchall()]
-    cur.close()
-    conn.close()
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
 
-    return {"results": results}
+        cur.execute("""
+            SELECT chunk, embedding <#> %s AS score
+            FROM documents
+            WHERE embedding IS NOT NULL
+            ORDER BY score ASC
+            LIMIT 5;
+        """, (query_vector,))
+
+        results = [{"chunk": row[0], "score": row[1]} for row in cur.fetchall()]
+        cur.close()
+        conn.close()
+
+        return {"results": results}
+
+    except Exception as e:
+        return {"error": str(e)}
