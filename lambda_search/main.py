@@ -42,11 +42,7 @@ def lambda_handler(event, context):
         cur = conn.cursor()
 
         cur.execute("""
-            SELECT chunk, embedding <#> %s::vector AS score
-            FROM documents
-            WHERE embedding IS NOT NULL
-            ORDER BY score ASC
-            LIMIT 5;
+            SELECT id, LEFT(chunk, 100) AS preview FROM documents LIMIT 10;
         """, (query_vector,))
 
         results = [{"chunk": row[0], "score": row[1]} for row in cur.fetchall()]
