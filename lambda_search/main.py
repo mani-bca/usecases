@@ -3,17 +3,14 @@ import json
 import boto3
 import psycopg2
 
-# Environment variables
 SECRET_NAME = os.environ['DB_SECRET_NAME']
 REGION = os.environ.get('AWS_REGION', 'us-east-1')
 
-# Get credentials from AWS Secrets Manager
 def get_db_credentials():
     client = boto3.client('secretsmanager', region_name=REGION)
     secret = client.get_secret_value(SecretId=SECRET_NAME)
     return json.loads(secret['SecretString'])
 
-# Establish DB connection
 def connect_db():
     creds = get_db_credentials()
     return psycopg2.connect(
@@ -24,10 +21,8 @@ def connect_db():
         port=creds['port']
     )
 
-# Lambda handler
 def lambda_handler(event, context):
     try:
-        # Parse request body
         body = json.loads(event.get("body", "{}"))
         query_vector = body.get("query_vector")
 
@@ -37,7 +32,6 @@ def lambda_handler(event, context):
                 "body": json.dumps({"error": "Missing or invalid 'query_vector'"})
             }
 
-        # Connect and run query
         conn = connect_db()
         cur = conn.cursor()
 

@@ -1,4 +1,4 @@
-name: Build and Upload Lambda ZIPs
+name: Build and Upload Lambda ZIP
 
 on:
   workflow_dispatch:
