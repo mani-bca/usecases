@@ -1,15 +1,19 @@
 import os
+import json
 import boto3
 import psycopg2
 
+# Environment variables
 SECRET_NAME = os.environ['DB_SECRET_NAME']
 REGION = os.environ.get('AWS_REGION', 'us-east-1')
 
+# Get credentials from AWS Secrets Manager
 def get_db_credentials():
     client = boto3.client('secretsmanager', region_name=REGION)
     secret = client.get_secret_value(SecretId=SECRET_NAME)
-    return eval(secret['SecretString'])
+    return json.loads(secret['SecretString'])
 
+# Establish DB connection
 def connect_db():
     creds = get_db_credentials()
     return psycopg2.connect(
@@ -20,12 +24,20 @@ def connect_db():
         port=creds['port']
     )
 
+# Lambda handler
 def lambda_handler(event, context):
-    query_vector = event.get("query_vector")
-    if not query_vector or not isinstance(query_vector, list):
-        return {"error": "Missing or invalid 'query_vector'"}
-
     try:
+        # Parse request body
+        body = json.loads(event.get("body", "{}"))
+        query_vector = body.get("query_vector")
+
+        if not query_vector or not isinstance(query_vector, list):
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "Missing or invalid 'query_vector'"})
+            }
+
+        # Connect and run query
         conn = connect_db()
         cur = conn.cursor()
 
@@ -41,7 +53,13 @@ def lambda_handler(event, context):
         cur.close()
         conn.close()
 
-        return {"results": results}
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"results": results})
+        }
 
     except Exception as e:
-        return {"error": str(e)}
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }
