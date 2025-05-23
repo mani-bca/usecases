@@ -1,2 +1,2 @@
 # usecases
-usecases-13 & 14
+usecases-13
