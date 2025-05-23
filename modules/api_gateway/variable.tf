@@ -11,3 +11,7 @@ variable "lambda_function_arn" {
 variable "tags" { 
     type = map(string) 
 }
+
+variable "lambda_function_name" {
+  type = string
+}
