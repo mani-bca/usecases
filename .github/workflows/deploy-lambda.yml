@@ -56,8 +56,14 @@ jobs:
       #     cd ..
       #     echo "Generated search.zip:"
       #     unzip -l search.zip
-      #     aws s3 cp search.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip
 
-      - name: Upload to S3
+
+      - name: Upload to ingest S3
         run: |
+          aws s3 rm s3://${{ env.LAMBDA_CODE_BUCKET }}/ingest.zip || true
           aws s3 cp ingest.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/ingest.zip
+
+      # - name: Upload to search S3
+      #   run: |
+      #     aws s3 rm s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip || true
+      #     aws s3 cp search.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip
