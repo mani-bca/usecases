@@ -4,6 +4,7 @@ import psycopg2
 import fitz  # PyMuPDF
 import tiktoken
 import logging
+import urllib.parse
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -38,22 +39,23 @@ def chunk_text(text, max_tokens=500):
 
 def lambda_handler(event, context):
     try:
-        # Extract bucket and key from S3 event
+        # Extract S3 bucket and key
         record = event['Records'][0]
-        file_key = record['s3']['object']['key']
         bucket = record['s3']['bucket']['name']
+        raw_key = record['s3']['object']['key']
+        file_key = urllib.parse.unquote_plus(raw_key)
 
-        logger.info(f"Fetching file from S3: {file_key}")
+        logger.info(f"Triggered by: s3://{bucket}/{file_key}")
         s3 = boto3.client('s3')
         obj = s3.get_object(Bucket=bucket, Key=file_key)
         file_bytes = obj['Body'].read()
         file_size_kb = len(file_bytes) / 1024
-        logger.info(f"File fetched. Size: {file_size_kb:.2f} KB")
+        logger.info(f"File fetched: {file_key} ({file_size_kb:.2f} KB)")
 
         ext = os.path.splitext(file_key)[-1].lower()
 
         if ext == ".pdf":
-            logger.info("Extracting text from PDF using PyMuPDF")
+            logger.info("Extracting text from PDF")
             doc = fitz.open(stream=file_bytes, filetype="pdf")
             text = "\n".join(page.get_text() for page in doc)
         elif ext == ".txt":
@@ -64,7 +66,7 @@ def lambda_handler(event, context):
             return {"error": f"Unsupported file type: {ext}", "file": file_key}
 
         if not text.strip():
-            logger.warning("No text could be extracted from file")
+            logger.warning("No text extracted")
             return {"warning": "No text extracted from file", "file": file_key}
 
         chunks = chunk_text(text)
@@ -72,7 +74,7 @@ def lambda_handler(event, context):
         conn = connect_db()
         cur = conn.cursor()
 
-        logger.info("Creating documents table if not exists")
+        logger.info("Ensuring documents table exists")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS documents (
                 id SERIAL PRIMARY KEY,
@@ -89,7 +91,7 @@ def lambda_handler(event, context):
         cur.close()
         conn.close()
 
-        logger.info(f"Successfully inserted {len(chunks)} chunks for file: {file_key}")
+        logger.info(f"Successfully stored {len(chunks)} chunks for file {file_key}")
         return {
             "status": "success",
             "chunks_stored": len(chunks),
