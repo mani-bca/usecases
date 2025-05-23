@@ -67,3 +67,11 @@ jobs:
       #   run: |
       #     aws s3 rm s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip || true
       #     aws s3 cp search.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip
+
+      - name: update lambda for ingest
+        run: |
+          aws lambda update-function-code --function-name semantic-ingest --s3-bucket lambda-code-bucket-ddd --s3-key ingest.zip
+
+      # - name: update lambda for search
+      #   run: |
+      #     aws lambda update-function-code --function-name semantic-search --s3-bucket lambda-code-bucket-ddd --s3-key search.zip
