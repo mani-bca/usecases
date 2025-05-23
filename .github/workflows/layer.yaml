@@ -1,0 +1,42 @@
+name: Build Lambda Layer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-layer:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install sentence-transformers to layer directory
+      run: |
+        mkdir -p layer/python
+        pip install sentence-transformers -t layer/python
+
+    - name: Zip the layer
+      run: |
+        cd layer
+        zip -r ../sentence-transformers-layer.zip .
+
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+        aws-region: us-east-1
+
+    - name: Upload to S3 
+      run: |
+        aws s3 cp sentence-transformers-layer.zip s3://lambda-layer-bucket-ddd/

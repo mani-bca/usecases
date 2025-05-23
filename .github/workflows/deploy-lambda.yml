@@ -1,0 +1,77 @@
+name: Build and Upload Lambda ZIP
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  LAMBDA_CODE_BUCKET: lambda-code-bucket-ddd
+
+jobs:
+  package-and-upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # - name: Install AWS CLI
+      #   run: |
+      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #     unzip awscliv2.zip
+      #     sudo ./aws/install
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Package Ingest Lambda
+        run: |
+          cd lambda_ingest
+          pip install -r requirements.txt -t .
+          find . -type d -name "__pycache__" -exec rm -r {} +
+          zip -r ../ingest.zip .
+          cd ..
+          echo "Generated ingest.zip:"
+          unzip -l ingest.zip
+
+
+      # - name: Package Search Lambda
+      #   run: |
+      #     cd lambda_search
+      #     pip install -r requirements.txt -t .
+      #     find . -type d -name "__pycache__" -exec rm -r {} +
+      #     zip -r ../search.zip .
+      #     cd ..
+      #     echo "Generated search.zip:"
+      #     unzip -l search.zip
+
+
+      - name: Upload to ingest S3
+        run: |
+          aws s3 rm s3://${{ env.LAMBDA_CODE_BUCKET }}/ingest.zip || true
+          aws s3 cp ingest.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/ingest.zip
+
+      # - name: Upload to search S3
+      #   run: |
+      #     aws s3 rm s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip || true
+      #     aws s3 cp search.zip s3://${{ env.LAMBDA_CODE_BUCKET }}/search.zip
+
+      - name: update lambda for ingest
+        run: |
+          aws lambda update-function-code --function-name semantic-ingest --s3-bucket lambda-code-bucket-ddd --s3-key ingest.zip
+
+      # - name: update lambda for search
+      #   run: |
+      #     aws lambda update-function-code --function-name semantic-search --s3-bucket lambda-code-bucket-ddd --s3-key search.zip
