@@ -1,5 +1,5 @@
 user_pool_name = "hello-user-pool"
-domain_prefix  = "helloapp"
+domain_prefix  = "helloappmani"
 
 
 
