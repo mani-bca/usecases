@@ -6,7 +6,7 @@ module "lambda_iam_role" {
 }
 
 module "lambda_hello" {
-  source         = "../../modules/lambda"
+  source         = "../modules/lambda"
   function_name  = var.function_name
   handler        = var.handler
   runtime        = var.runtime
@@ -20,7 +20,7 @@ module "lambda_hello" {
 }
 
 module "api_gateway" {
-  source     = "../../modules/api_gateway"
+  source     = "../modules/api_gateway"
   api_name   = "hello-api"
   stage_name = "prod"
   region     = var.region
@@ -33,7 +33,7 @@ module "api_gateway" {
 }
 
 module "cognito" {
-  source         = "../../modules/cognito"
+  source         = "../modules/cognito"
   user_pool_name = var.user_pool_name
   domain_prefix  = var.domain_prefix
   callback_urls  = var.callback_urls

@@ -30,12 +30,7 @@ variable "architecture" {
   type    = string
   default = "x86_64"
 }
-variable "lambda_role_name" {
-  type    = string
-}
-variable "lambda_policy_arns" {
-  type = list(string)
-}
+
 
 # Variables for module "lambda_iam_role"
 variable "lambda_role_name" {
