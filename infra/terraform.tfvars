@@ -1,6 +1,6 @@
 user_pool_name = "hello-user-pool"
 domain_prefix  = "helloapp"
-# callback_urls  = ["https://example.com/callback"]
+
 
 
 

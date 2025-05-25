@@ -43,7 +43,7 @@ module "cognito" {
   user_pool_name = var.user_pool_name
   domain_prefix  = var.domain_prefix
   callback_urls  = module.api_gateway.invoke_url
-  # logout_urls    = var.logout_urls
+  logout_urls    = var.logout_urls
   depends_on = [
     module.api_gateway
   ]

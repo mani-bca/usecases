@@ -69,6 +69,7 @@ variable "callback_urls" {
 variable "logout_urls" {
   description = "List of logout URLs for the Cognito User Pool app client."
   type        = list(string)
+  default = []
 }
 
 variable "tags" {
