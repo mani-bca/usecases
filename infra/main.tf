@@ -17,6 +17,9 @@ module "lambda_hello" {
   layers         = var.layers
   environment_variables = var.environment_variables
   architecture   = var.architecture
+  depends_on = [
+    module.lambda_iam_role
+  ]
 }
 
 module "api_gateway" {
@@ -30,14 +33,20 @@ module "api_gateway" {
       lambda_arn = module.lambda_hello.lambda_arn
     }
   }
+  depends_on = [
+    module.lambda_hello
+  ]
 }
 
 module "cognito" {
   source         = "../modules/cognito"
   user_pool_name = var.user_pool_name
   domain_prefix  = var.domain_prefix
-  callback_urls  = var.callback_urls
-  logout_urls    = var.logout_urls
+  callback_urls  = module.api_gateway.invoke_url
+  # logout_urls    = var.logout_urls
+  depends_on = [
+    module.api_gateway
+  ]
 }
 
 
