@@ -9,28 +9,20 @@ function_name           = "hello-world-fn"
 handler                 = "index.handler"
 runtime                 = "nodejs18.x"
 source_path             = "../../lambda-code"
-memory_size             = 512
-timeout                 = 10
-layers                  = ["arn:aws:lambda:us-east-1:123456789012:layer:custom-lib:1"]
+memory_size             = 128
+timeout                 = 30
+layers                  = []
 environment_variables   = {
   ENV   = "dev"
   DEBUG = "true"
 }
 architecture            = "arm64"
 
-lambda_role_name        = "lambda-exec-role"
-lambda_policy_arns      = [
-  "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-]
 
-
-
-lambda_role_name        = "semantic-lambda-role"
+lambda_role_name        = "api-lambda-role"
 lambda_policy_arns      = [
   "arn:aws:iam::aws:policy/AWSLambdaExecute",
-  "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
-  "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
-  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 ]
 
 tags = {

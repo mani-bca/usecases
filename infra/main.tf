@@ -6,7 +6,7 @@ module "lambda_iam_role" {
 }
 
 module "lambda_hello" {
-  source         = "../../modules/lambda_hello_world"
+  source         = "../../modules/lambda"
   function_name  = var.function_name
   handler        = var.handler
   runtime        = var.runtime
@@ -28,17 +28,31 @@ module "api_gateway" {
   routes = {
     "GET /hello" = {
       lambda_arn = module.lambda_hello.lambda_arn
-    },
-    "GET /bye" = {
-      lambda_arn = module.lambda_bye.lambda_arn
     }
   }
 }
 
 module "cognito" {
-  source         = "../../modules/cognito_sso"
+  source         = "../../modules/cognito"
   user_pool_name = var.user_pool_name
   domain_prefix  = var.domain_prefix
   callback_urls  = var.callback_urls
   logout_urls    = var.logout_urls
 }
+
+
+# module "api_gateway" {
+#   source     = "../../modules/api_gateway"
+#   api_name   = "hello-api"
+#   stage_name = "prod"
+#   region     = var.region
+
+#   routes = {
+#     "GET /hello" = {
+#       lambda_arn = module.lambda_hello.lambda_arn
+#     },
+#     "GET /bye" = {
+#       lambda_arn = module.lambda_bye.lambda_arn
+#     }
+#   }
+# }
