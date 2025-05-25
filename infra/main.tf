@@ -5,6 +5,19 @@ module "lambda_iam_role" {
   tags           = var.tags
 }
 
+module "lambda_hello" {
+  source         = "../../modules/lambda_hello_world"
+  function_name  = var.function_name
+  handler        = var.handler
+  runtime        = var.runtime
+  role_arn       = module.lambda_role.arn
+  source_path    = var.source_path
+  memory_size    = var.memory_size
+  timeout        = var.timeout
+  layers         = var.layers
+  environment_variables = var.environment_variables
+  architecture   = var.architecture
+}
 
 module "api_gateway" {
   source     = "../../modules/api_gateway"
