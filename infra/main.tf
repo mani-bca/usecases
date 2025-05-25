@@ -14,3 +14,10 @@ module "api_gateway" {
   }
 }
 
+module "cognito" {
+  source         = "../../modules/cognito_sso"
+  user_pool_name = var.user_pool_name
+  domain_prefix  = var.domain_prefix
+  callback_urls  = var.callback_urls
+  logout_urls    = var.logout_urls
+}
