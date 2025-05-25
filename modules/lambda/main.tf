@@ -1,43 +1,16 @@
-resource "aws_lambda_function" "this" {
-  function_name = var.function_name
-  s3_bucket     = var.s3_bucket
-  s3_key        = var.s3_key
-  handler       = var.handler
-  # handler       = main.lambda_handler
-  runtime       = var.runtime
-  role          = var.role_arn
-  timeout       = var.timeout
-  memory_size   = var.memory_size
+modules/lambda_hello_world/main.tf
 
-  environment {
-    variables = var.environment_vars
-  }
+data "archive_file" "lambda_zip" { type        = "zip" source_dir  = var.source_path output_path = "${path.module}/hello-world.zip" }
 
-  vpc_config {
-    subnet_ids         = var.vpc_config.subnet_ids
-    security_group_ids = var.vpc_config.security_group_ids
-  }
+resource "aws_lambda_function" "this" { function_name    = var.function_name handler          = var.handler runtime          = var.runtime role             = var.role_arn filename         = data.archive_file.lambda_zip.output_path source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 
-  # dynamic "layers" {
-  #   for_each = var.layers
-  #   content {
-  #     arn = layers.value
-  #   }
-  # }
-  layers = var.layers
+memory_size      = var.memory_size timeout          = var.timeout layers           = var.layers environment { variables = var.environment_variables } package_type = "Zip" architectures = [var.architecture] }
 
-  reserved_concurrent_executions = var.reserved_concurrent_executions
+modules/lambda_hello_world/variables.tf
 
-  # lifecycle {
-  #   ignore_changes = [last_modified]
-  # }
+variable "function_name" {} variable "handler" {} variable "runtime" {} variable "role_arn" {} variable "source_path" {} variable "memory_size" { default = 128 } variable "timeout" { default = 3 } variable "layers" { type = list(string), default = [] } variable "environment_variables" { type = map(string), default = {} } variable "architecture" { default = "x86_64" }
 
-  tags = var.tags
-}
+modules/lambda_hello_world/outputs.tf
 
-resource "aws_lambda_alias" "live" {
-  name             = "live"
-  function_name    = aws_lambda_function.this.function_name
-  function_version = aws_lambda_function.this.version
-  depends_on       = [aws_lambda_function.this]
-}
+output "lambda_arn" { value = aws_lambda_function.this.arn }
+
