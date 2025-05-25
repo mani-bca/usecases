@@ -10,7 +10,7 @@ module "lambda_hello" {
   function_name  = var.function_name
   handler        = var.handler
   runtime        = var.runtime
-  role_arn       = module.lambda_role.arn
+  role_arn       = module.module.lambda_iam_role.arn
   source_path    = var.source_path
   memory_size    = var.memory_size
   timeout        = var.timeout
