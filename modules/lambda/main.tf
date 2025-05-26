@@ -1,43 +1,25 @@
-resource "aws_lambda_function" "this" {
-  function_name = var.function_name
-  s3_bucket     = var.s3_bucket
-  s3_key        = var.s3_key
-  handler       = var.handler
-  # handler       = main.lambda_handler
-  runtime       = var.runtime
-  role          = var.role_arn
-  timeout       = var.timeout
-  memory_size   = var.memory_size
-
-  environment {
-    variables = var.environment_vars
-  }
-
-  vpc_config {
-    subnet_ids         = var.vpc_config.subnet_ids
-    security_group_ids = var.vpc_config.security_group_ids
-  }
-
-  # dynamic "layers" {
-  #   for_each = var.layers
-  #   content {
-  #     arn = layers.value
-  #   }
-  # }
-  layers = var.layers
-
-  reserved_concurrent_executions = var.reserved_concurrent_executions
-
-  # lifecycle {
-  #   ignore_changes = [last_modified]
-  # }
-
-  tags = var.tags
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_dir  = var.source_path
+  output_path = "${path.module}/hello-world.zip"
 }
 
-resource "aws_lambda_alias" "live" {
-  name             = "live"
-  function_name    = aws_lambda_function.this.function_name
-  function_version = aws_lambda_function.this.version
-  depends_on       = [aws_lambda_function.this]
+resource "aws_lambda_function" "this" {
+  function_name    = var.function_name
+  handler          = var.handler
+  runtime          = var.runtime
+  role             = var.role_arn
+  filename         = data.archive_file.lambda_zip.output_path
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+
+  memory_size = var.memory_size
+  timeout     = var.timeout
+  layers      = var.layers
+
+  environment {
+    variables = var.environment_variables
+  }
+
+  package_type  = "Zip"
+  architectures = [var.architecture]
 }
