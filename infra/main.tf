@@ -1,67 +1,24 @@
-module "lambda_iam_role" {
-  source         = "../modules/iam_role"
-  role_name      = var.lambda_role_name
-  policy_arns    = var.lambda_policy_arns
-  tags           = var.tags
+provider "aws" {
+  region = var.region
 }
 
-module "lambda_hello" {
-  source         = "../modules/lambda"
-  function_name  = var.function_name
-  handler        = var.handler
-  runtime        = var.runtime
-  role_arn       = module.lambda_iam_role.iam_role_arn
-  source_path    = var.source_path
-  memory_size    = var.memory_size
-  timeout        = var.timeout
-  layers         = var.layers
-  environment_variables = var.environment_variables
-  architecture   = var.architecture
-  depends_on = [
-    module.lambda_iam_role
-  ]
+module "sns" {
+  source        = "./modules/sns"
+  topic_name    = "aws-login-alerts"
+  email_address = var.alert_email
 }
 
-module "api_gateway" {
-  source     = "../modules/api_gateway"
-  api_name   = "hello-api"
-  stage_name = "prod"
-  region     = var.region
-
-  routes = {
-    "GET /hello" = {
-      lambda_arn = module.lambda_hello.lambda_arn
-    }
-  }
-  depends_on = [
-    module.lambda_hello
-  ]
+module "cloudwatch" {
+  source          = "./modules/cloudwatch"
+  log_group_name  = "aws-login-logs"
+  alarm_name      = "console-login-alarm"
+  sns_topic_arn   = module.sns.sns_topic_arn
 }
 
-module "cognito" {
-  source         = "../modules/cognito"
-  user_pool_name = var.user_pool_name
-  domain_prefix  = var.domain_prefix
-  callback_urls  = [module.api_gateway.invoke_url]
-  logout_urls    = var.logout_urls
-  depends_on = [
-    module.api_gateway
-  ]
+module "cloudtrail" {
+  source                   = "./modules/cloudtrail"
+  bucket_name              = "aws-login-audit-${var.region}"
+  trail_name               = "org-console-login-trail"
+  cloudwatch_log_group_arn = module.cloudwatch.log_group_arn
+  cloudwatch_role_arn      = module.cloudwatch.cloudwatch_role_arn
 }
-
-
-# module "api_gateway" {
-#   source     = "../../modules/api_gateway"
-#   api_name   = "hello-api"
-#   stage_name = "prod"
-#   region     = var.region
-
-#   routes = {
-#     "GET /hello" = {
-#       lambda_arn = module.lambda_hello.lambda_arn
-#     },
-#     "GET /bye" = {
-#       lambda_arn = module.lambda_bye.lambda_arn
-#     }
-#   }
-# }
