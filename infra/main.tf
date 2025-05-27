@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.region
+}
+
 module "sns" {
   source        = "../modules/sns"
   topic_name    = "aws-login-alerts"
