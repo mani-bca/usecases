@@ -10,7 +10,7 @@ resource "aws_cloudtrail" "trail" {
   enable_log_file_validation    = true
   cloud_watch_logs_group_arn    = var.cloudwatch_log_group_arn
   cloud_watch_logs_role_arn     = var.cloudwatch_role_arn
-  is_logging                    = true
+  enable_logging                = true
   event_selector {
     read_write_type           = "All"
     include_management_events = true
