@@ -1,1 +1,1 @@
-alert_email = "manivasagan.p@hcltech"
+alert_email = "manivasagan.p@hcltech.com"
