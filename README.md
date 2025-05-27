@@ -1,3 +1,17 @@
-# usecases
-usecases-16
-https://github.gallerycdn.vsassets.io/extensions/github/copilot/1.323.0/1747855649301/Microsoft.VisualStudio.Services.VSIXPackage
+aws-console-login-monitoring/
+├── modules/
+│   ├── cloudtrail/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── cloudwatch/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   └── sns/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+├── main.tf
+├── variables.tf
+└── terraform.tfvars
