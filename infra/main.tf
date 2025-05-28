@@ -1,24 +1,24 @@
-# provider "aws" {
-#   region = var.region
-# }
+module "s3_catalog" {
+  source = "./modules/service_catalog"
 
-module "sns" {
-  source        = "../modules/sns"
-  topic_name    = "aws-login-alerts"
-  email_address = var.alert_email
-}
+  portfolio_name                 = var.portfolio_name
+  portfolio_description          = var.portfolio_description
+  provider_name                  = var.provider_name
 
-module "cloudwatch" {
-  source          = "../modules/cloudwatch"
-  log_group_name  = "aws-login-logs"
-  alarm_name      = "console-login-alarm"
-  sns_topic_arn   = module.sns.sns_topic_arn
-}
+  product_name                   = var.product_name
+  product_owner                  = var.product_owner
+  template_url                   = var.template_url
+  provisioning_name              = var.provisioning_name
 
-module "cloudtrail" {
-  source                   = "../modules/cloudtrail"
-  bucket_name              = "aws-login-audit-${var.region}"
-  trail_name               = "org-console-login-trail"
-  cloudwatch_log_group_arn = module.cloudwatch.log_group_arn
-  cloudwatch_role_arn      = module.cloudwatch.cloudwatch_role_arn
+  enable_template_constraint     = var.enable_template_constraint
+  template_constraint_parameters = var.template_constraint_parameters
+
+  enable_launch_constraint       = var.enable_launch_constraint
+  launch_role_arn                = var.launch_role_arn
+
+  create_tag_option              = var.create_tag_option
+  tag_key                        = var.tag_key
+  tag_value                      = var.tag_value
+
+  user_arn                       = var.user_arn
 }
