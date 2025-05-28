@@ -4,7 +4,7 @@ provider_name          = "maniowner"
 
 product_name           = "S3 Bucket Product"
 product_owner          = "manivasagan"
-template_url           = "s3://demobucketforservicecatalog/todaydemo/bucket-old.yaml"
+template_url           = "https://demobucketforservicecatalog.s3.us-east-1.amazonaws.com/todaydemo/bucket-old.yaml"
 provisioning_name      = "v1"
 
 enable_template_constraint = true
