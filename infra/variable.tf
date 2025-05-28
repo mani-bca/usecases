@@ -61,10 +61,19 @@ variable "search_lambda_key" {
   type = string 
 }
 
+variable "query_lambda_key" { 
+  type = string 
+}
+
+
 variable "ingest_lambda_name" { 
   type = string 
 }
 variable "search_lambda_name" { 
+  type = string 
+}
+
+variable "query_lambda_name" { 
   type = string 
 }
 # variable "ingest_lambda_handler" { 

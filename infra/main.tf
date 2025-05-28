@@ -148,6 +148,33 @@ module "lambda_search" {
 
 }
 
+module "lambda_query" {
+  source          = "../modules/lambda"
+  function_name   = var.query_lambda_name
+  s3_bucket       = var.lambda_code_bucket
+  s3_key          = var.query_lambda_key
+  # handler         = var.search_lambda_handler
+  runtime         = var.lambda_runtime
+  role_arn        = module.lambda_iam_role.iam_role_arn
+  environment_vars = {
+    DB_SECRET_NAME = var.db_secret_name
+  }
+  vpc_config = {
+    subnet_ids         = module.vpc.private_subnet_ids
+    security_group_ids = [module.lambda_sg.security_group_id] 
+  }
+  tags = var.tags
+
+  depends_on = [
+    module.raw_s3_bucket,
+    module.vpc,
+    module.lambda_sg,
+    module.lambda_iam_role,
+    module.db_secret
+  ]
+}
+
+
 module "search_api" {
   source              = "../modules/api_gateway"
   api_name            = var.api_name
