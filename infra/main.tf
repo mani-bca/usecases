@@ -200,7 +200,6 @@ resource "aws_lambda_permission" "allow_s3_to_invoke_lambda" {
   source_arn    = "arn:aws:s3:::${var.raw_bucket_name}"
 }
 
-# Attach S3 event to trigger Lambda on .pdf upload
 resource "aws_s3_bucket_notification" "lambda_trigger" {
   bucket = var.raw_bucket_name
 
