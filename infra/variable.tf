@@ -1,8 +1,16 @@
-variable "region" {
-  default = "us-east-1"
-}
-
-variable "alert_email" {
-  description = "Email address for login alerts"
-  type        = string
-}
+# All variables delegated to tfvars
+variable "portfolio_name" {}
+variable "portfolio_description" {}
+variable "provider_name" {}
+variable "product_name" {}
+variable "product_owner" {}
+variable "template_url" {}
+variable "provisioning_name" {}
+variable "enable_template_constraint" {}
+variable "template_constraint_parameters" {}
+variable "enable_launch_constraint" {}
+variable "launch_role_arn" {}
+variable "create_tag_option" {}
+variable "tag_key" {}
+variable "tag_value" {}
+variable "user_arn" {}
