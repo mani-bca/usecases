@@ -1,10 +1,10 @@
 portfolio_name         = "S3 Portfolio"
 portfolio_description  = "Portfolio for provisioning S3 buckets"
-provider_name          = "YourCompany"
+provider_name          = "maniowner"
 
 product_name           = "S3 Bucket Product"
-product_owner          = "YourCompany"
-template_url           = "https://s3.amazonaws.com/your-bucket/templates/s3-bucket.yaml"
+product_owner          = "manivasagan"
+template_url           = "s3://demobucketforservicecatalog/todaydemo/bucket-old.yaml"
 provisioning_name      = "v1"
 
 enable_template_constraint = true
@@ -13,7 +13,7 @@ template_constraint_parameters = {
     RegionRule = {
       Assertions = [
         {
-          Assert            = "Fn::Equals([Ref(\"AWS::Region\"), \"us-east-1\"])"
+          Assert            = "Fn::Equals([Ref(\"AWS::Region\"), \"us-west-1\"])"
           AssertDescription = "S3 buckets must be created in us-east-1"
         }
       ]
