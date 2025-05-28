@@ -32,7 +32,7 @@ db_name                 = "semanticdb"
 db_username             = "postgres"
 db_password             = "supersecretpassword"
 db_instance_class       = "db.t3.micro"
-db_secret_name          = "semantic-search-db-credentialss"
+db_secret_name          = "semantic-search-db-credentialsed"
 
 lambda_code_bucket      = "lambda-code-bucket-ddd"
 ingest_lambda_key       = "ingest.zip"
