@@ -1,17 +1,12 @@
-aws-SVC-login-monitoring/
+terraform-servicecatalog/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── terraform.tfvars
 ├── modules/
-│   ├── cloudtrail/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   ├── cloudwatch/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   └── sns/
+│   └── service_catalog/
 │       ├── main.tf
 │       ├── variables.tf
 │       └── outputs.tf
-├── main.tf
-├── variables.tf
-└── terraform.tfvars
+└── templates/
+    └── s3-bucket.yaml
