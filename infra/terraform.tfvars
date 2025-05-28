@@ -41,7 +41,7 @@ query_lambda_key        = "query.zip"
 
 ingest_lambda_name      = "semantic-ingest"
 search_lambda_name      = "semantic-search"
-query_lambda_name =     = "semantic-query"
+query_lambda_name       = "semantic-query"
 # ingest_lambda_handler   = "main.lambda.handler"
 # search_lambda_handler   = "search_lambda.handler"
 
