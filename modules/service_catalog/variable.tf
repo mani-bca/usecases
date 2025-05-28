@@ -1,44 +1,82 @@
-variable "portfolio_name" {}
-variable "portfolio_description" {}
-variable "provider_name" {}
+variable "portfolio_name" {
+  description = "Name of the Service Catalog portfolio"
+  type        = string
+}
 
-variable "product_name" {}
-variable "product_owner" {}
-variable "template_url" {}
-variable "provisioning_name" {}
+variable "portfolio_description" {
+  description = "Description of the Service Catalog portfolio"
+  type        = string
+}
+
+variable "provider_name" {
+  description = "Name of the provider creating the portfolio"
+  type        = string
+}
+
+variable "product_name" {
+  description = "Name of the product in the portfolio"
+  type        = string
+}
+
+variable "product_owner" {
+  description = "Owner of the product"
+  type        = string
+}
+
+variable "template_url" {
+  description = "S3 URL to the CloudFormation template"
+  type        = string
+}
+
+variable "provisioning_name" {
+  description = "Name for the provisioning artifact"
+  type        = string
+}
 
 variable "enable_template_constraint" {
-  type    = bool
-  default = false
+  description = "Enable or disable the template constraint"
+  type        = bool
+  default     = false
 }
+
 variable "template_constraint_parameters" {
-  type    = map(any)
-  default = {}
+  description = "JSON-encoded parameters for the template constraint"
+  type        = map(any)
+  default     = {}
 }
 
 variable "enable_launch_constraint" {
-  type    = bool
-  default = false
+  description = "Enable or disable the launch constraint"
+  type        = bool
+  default     = false
 }
+
 variable "launch_role_arn" {
-  type    = string
-  default = ""
+  description = "IAM role ARN to be used for product launch"
+  type        = string
+  default     = ""
 }
 
 variable "create_tag_option" {
-  type    = bool
-  default = false
+  description = "Whether to create and associate a TagOption"
+  type        = bool
+  default     = false
 }
+
 variable "tag_key" {
-  type    = string
-  default = "env"
+  description = "TagOption key"
+  type        = string
+  default     = "env"
 }
+
 variable "tag_value" {
-  type    = string
-  default = "dev"
+  description = "TagOption value"
+  type        = string
+  default     = "dev"
 }
 
 variable "user_arn" {
-  type    = string
-  default = ""
+  description = "IAM principal ARN to associate with the portfolio"
+  type        = string
+  default     = ""
 }
