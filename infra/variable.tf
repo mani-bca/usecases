@@ -1,4 +1,3 @@
-# All variables delegated to tfvars
 variable "portfolio_name" {}
 variable "portfolio_description" {}
 variable "provider_name" {}

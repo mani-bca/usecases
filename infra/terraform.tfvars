@@ -22,10 +22,10 @@ template_constraint_parameters = {
 }
 
 enable_launch_constraint = true
-launch_role_arn          = "arn:aws:iam::123456789012:role/ServiceCatalogLaunchRole"
+launch_role_arn          = "arn:aws:iam::676206899900:role/ServiceCatalogLaunchRole"
 
 create_tag_option        = true
 tag_key                  = "env"
 tag_value                = "dev"
 
-user_arn                 = "arn:aws:iam::123456789012:user/johndoe"
+user_arn                 = "arn:aws:iam::676206899900:user/svc"
