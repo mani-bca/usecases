@@ -1,9 +1,9 @@
 variable "raw_bucket_name" { 
   type = string 
 }
-variable "processed_bucket_name" { 
-  type = string 
-}
+# variable "processed_bucket_name" { 
+#   type = string 
+# }
 
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
