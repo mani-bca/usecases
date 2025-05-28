@@ -1,4 +1,4 @@
-aws-console-login-monitoring/
+aws-SVC-login-monitoring/
 ├── modules/
 │   ├── cloudtrail/
 │   │   ├── main.tf
