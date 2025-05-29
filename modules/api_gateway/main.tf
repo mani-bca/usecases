@@ -42,6 +42,3 @@ resource "aws_lambda_permission" "apigw_invoke" {
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
-output "api_url" {
-  value = "https://${aws_apigatewayv2_api.this.id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${var.stage_name}"
-}
