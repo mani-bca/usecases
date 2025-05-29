@@ -137,3 +137,7 @@ variable "qurey_layers" {
   type        = list(string)
   default     = []
 }
+variable "api_stage_name" {
+  type = string
+  default = "$default"
+}

@@ -175,23 +175,47 @@ module "lambda_query" {
   ]
 }
 
-
 module "search_api" {
-  source              = "../modules/api_gateway"
-  api_name            = var.api_name
-  lambda_function_arn = module.lambda_search.lambda_arn
-  lambda_function_name = module.lambda_search.lambda_name
-  tags                = var.tags
-  depends_on = [
-    module.raw_s3_bucket,
-    module.vpc,
-    module.lambda_sg,
-    module.lambda_iam_role,
-    module.db_secret,
-    module.lambda_search
+  source     = "../modules/api_gateway"
+  api_name   = var.api_name
+  stage_name = var.api_stage_name
+  tags       = var.tags
+
+  routes = [
+    {
+      path                   = "/search"
+      lambda_function_arn    = module.lambda_search.lambda_arn
+      lambda_function_name   = module.lambda_search.lambda_name
+    },
+    {
+      path                   = "/query"
+      lambda_function_arn    = module.lambda_query.lambda_arn
+      lambda_function_name   = module.lambda_query.lambda_name
+    }
   ]
 
+  depends_on = [
+    module.lambda_search,
+    module.lambda_query
+  ]
 }
+
+# module "search_api" {
+#   source              = "../modules/api_gateway"
+#   api_name            = var.api_name
+#   lambda_function_arn = module.lambda_search.lambda_arn
+#   lambda_function_name = module.lambda_search.lambda_name
+#   tags                = var.tags
+#   depends_on = [
+#     module.raw_s3_bucket,
+#     module.vpc,
+#     module.lambda_sg,
+#     module.lambda_iam_role,
+#     module.db_secret,
+#     module.lambda_search
+#   ]
+
+# }
 # Allow S3 to invoke the Lambda
 resource "aws_lambda_permission" "allow_s3_to_invoke_lambda" {
   statement_id  = "AllowExecutionFromS3"
