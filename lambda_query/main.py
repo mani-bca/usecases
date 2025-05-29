@@ -1,86 +1,85 @@
-import boto3
 import os
-import psycopg2
 import json
 import logging
+import boto3
+import psycopg2
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 SECRET_NAME = os.environ["DB_SECRET_NAME"]
-BEDROCK_MODEL_ID = "anthropic.claude-v2"  # Example Claude model
-BEDROCK_REGION = "us-east-1"
+PROVIDER = "amazon"
+MODEL_ID = "amazon.titan-embed-text-v2"
 
 def get_db_credentials():
-    sm = boto3.client("secretsmanager", region_name=REGION)
-    sec = sm.get_secret_value(SecretId=SECRET_NAME)
-    return eval(sec["SecretString"])
+    client = boto3.client('secretsmanager', region_name=REGION)
+    secret = client.get_secret_value(SecretId=SECRET_NAME)
+    return json.loads(secret['SecretString'])
 
 def connect_db():
     creds = get_db_credentials()
+    logger.info("Connecting to PostgreSQL DB")
     return psycopg2.connect(
-        host=creds["host"],
-        database=creds["dbname"],
-        user=creds["username"],
-        password=creds["password"],
-        port=creds["port"],
+        host=creds['host'],
+        database=creds['dbname'],
+        user=creds['username'],
+        password=creds['password'],
+        port=creds['port']
     )
 
-def ask_claude(query):
-    bedrock = boto3.client("bedrock-runtime", region_name=BEDROCK_REGION)
-    prompt = f"\n\nHuman: Give a short summary or refined version of this question for document matching: {query}\n\nAssistant:"
-    
-    response = bedrock.invoke_model(
-        modelId=BEDROCK_MODEL_ID,
+def get_titan_embedding(text):
+    logger.info("Calling Amazon Titan v2 embedding model")
+    client = boto3.client("bedrock-runtime", region_name=REGION)
+    payload = {
+        "inputText": text
+    }
+    response = client.invoke_model(
+        modelId=MODEL_ID,
         contentType="application/json",
         accept="application/json",
-        body=json.dumps({
-            "prompt": prompt,
-            "max_tokens_to_sample": 100,
-            "temperature": 0.5,
-        })
+        body=json.dumps(payload)
     )
-    result = json.loads(response["body"].read().decode())
-    return result.get("completion", "").strip()
+    body = json.loads(response['body'].read())
+    return body["embedding"]
 
 def lambda_handler(event, context):
     try:
+        logger.info("Parsing input event")
         body = json.loads(event.get("body", "{}"))
         query = body.get("query")
+
         if not query:
-            return {"statusCode": 400, "body": json.dumps({"error": "Missing query"})}
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "Missing 'query'"})
+            }
 
-        logger.info(f"Received query: {query}")
-        refined = ask_claude(query)
-        logger.info(f"Refined by Claude: {refined}")
+        embedding = get_titan_embedding(query)
 
-        # OPTIONAL: convert to embedding or just use keyword search
         conn = connect_db()
         cur = conn.cursor()
 
-        logger.info("Running text similarity (ILIKE match)")
+        logger.info("Executing pgvector semantic search query")
         cur.execute("""
-            SELECT chunk FROM documents
-            WHERE chunk ILIKE %s
+            SELECT chunk, embedding <#> %s AS score
+            FROM documents
+            WHERE embedding IS NOT NULL
+            ORDER BY score ASC
             LIMIT 5;
-        """, (f"%{refined}%",))
+        """, (embedding,))
 
-        rows = cur.fetchall()
+        results = [{"chunk": row[0], "score": row[1]} for row in cur.fetchall()]
         cur.close()
         conn.close()
 
         return {
             "statusCode": 200,
-            "body": json.dumps({
-                "query": query,
-                "refined": refined,
-                "matches": [row[0] for row in rows]
-            })
+            "body": json.dumps({"results": results})
         }
 
     except Exception as e:
-        logger.exception("Error occurred")
+        logger.exception("Unhandled error in lambda")
         return {
             "statusCode": 500,
             "body": json.dumps({"error": str(e)})
