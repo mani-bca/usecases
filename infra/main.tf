@@ -156,6 +156,7 @@ module "lambda_query" {
   # handler         = var.search_lambda_handler
   runtime         = var.lambda_runtime
   role_arn        = module.lambda_iam_role.iam_role_arn
+  # layers = var.qurey_layers
   environment_vars = {
     DB_SECRET_NAME = var.db_secret_name
   }

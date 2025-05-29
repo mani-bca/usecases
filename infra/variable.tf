@@ -132,3 +132,8 @@ variable "rds_egress_rules" {
     cidr_blocks = optional(list(string))
   }))
 }
+variable "qurey_layers" {
+  description = "List of Lambda layer ARNs for the query lambda."
+  type        = list(string)
+  default     = []
+}
