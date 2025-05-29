@@ -32,7 +32,7 @@ resource "aws_apigatewayv2_route" "this" {
 resource "aws_lambda_permission" "apigw_invoke" {
   for_each = { for route in var.routes : route.path => route }
 
-  statement_id  = "AllowInvokeByAPIGateway-${each.key}"
+  statement_id  = "AllowInvoke_${replace(each.key, "/", "_")}"
   action        = "lambda:InvokeFunction"
   function_name = each.value.lambda_function_name
   principal     = "apigateway.amazonaws.com"
