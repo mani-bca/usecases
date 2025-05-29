@@ -52,7 +52,8 @@ lambda_policy_arns      = [
   "arn:aws:iam::aws:policy/AWSLambdaExecute",
   "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
   "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
-  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+  "arn:aws:iam::aws:policy/AmazonBedrockFullAccess"
 ]
 
 api_name                = "semantic-search-api"
