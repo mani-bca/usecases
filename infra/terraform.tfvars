@@ -1,51 +1,64 @@
-# General settings
-environment  = "dev"
-##security group
-sg_name           = "rds-sg-dev"
-sg_description    = "security group for rds instance dev"
-sg_vpc_id         = "vpc-0bd1562f11536b9dd"
-sg_tags           = {
-  "SG_group" = "for rds",
-}
- 
-sg_ingress_rules = { 
-  	"1" = {
-		from_port			= 443
-		to_port				= 443
-		protocol			= "tcp"
-		cidr_blocks			= ["0.0.0.0/0"]
-		description			= "HTTPS From Private Subnets Dev"
-	},
-	"2" = {
-		from_port			= 80
-		to_port				= 80
-		protocol			= "tcp"
-		cidr_blocks			= ["0.0.0.0/0"]
-		description			= "HTTP within private subnet"
-	},
-	"3" = {
-		from_port			= 22
-		to_port				= 22
-		protocol			= "tcp"
-		cidr_blocks			= ["0.0.0.0/0"]
-		description			= "SSH within private subnet"
-	}
-}
- 
+raw_bucket_name         = "semantic-search-raw-ddd"
+# processed_bucket_name   = "semantic-search-processed-ddd"
 
-region                          = "us-east-1"
-rds_username                    = "auroraadmin"
-rds_instance_identifier         = "aurora-pg-cluster"
-rds_instance_class              = "db.r6g.large"
-rds_instance_db_name            = "auroradb"
-rds_instance_multi_az           = true
-rds_instance_storage_encrypted  = true
-parameter_group_name            = "aurora-pg-custom"
-parameter_group_family          = "aurora-postgresql15"
-subnet_ids = [ "subnet-0aade558b97319d86", "subnet-0211abeb4ee6ef699"]
-subnet_group_name               = "aurora-pg-subnet-group"
-# vpc_security_group_ids          = ["sg-abc123"]
-rds_instance_tags = {
-  Environment = "dev"
-  Project     = "aurora-postgres"
+name = "demo"
+vpc_cidr             = "10.0.0.0/16"
+availability_zones   = ["us-east-1a", "us-east-1b"]
+public_subnet_cidrs  = ["10.0.6.0/24", "10.0.7.0/24"]
+private_subnet_cidrs = ["10.0.4.0/24", "10.0.5.0/24"]
+create_nat_gateway   = true
+
+lambda_egress_rules = [
+  {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+]
+
+rds_ingress_rules = []
+
+rds_egress_rules = [
+  {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+]
+
+db_name                 = "semanticdb"
+db_username             = "postgres"
+db_password             = "supersecretpassword"
+db_instance_class       = "db.t3.micro"
+db_secret_name          = "semantic-search-db-credentialsed"
+
+lambda_code_bucket      = "lambda-code-bucket-ddd"
+ingest_lambda_key       = "ingest.zip"
+search_lambda_key       = "search.zip"
+query_lambda_key        = "query.zip"
+
+ingest_lambda_name      = "semantic-ingest"
+search_lambda_name      = "semantic-search"
+query_lambda_name       = "semantic-query"
+# ingest_lambda_handler   = "main.lambda.handler"
+# search_lambda_handler   = "search_lambda.handler"
+
+
+lambda_runtime          = "python3.11"
+lambda_role_name        = "semantic-lambda-role"
+lambda_policy_arns      = [
+  "arn:aws:iam::aws:policy/AWSLambdaExecute",
+  "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+  "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+  "arn:aws:iam::aws:policy/AmazonBedrockFullAccess"
+]
+
+api_name                = "semantic-search-api"
+
+tags = {
+  Project = "SemanticSearch"
+  Env   = "dev"
 }
