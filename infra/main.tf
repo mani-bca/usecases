@@ -97,7 +97,7 @@ module "lambda_iam_role" {
       {
         Effect = "Allow",
         Action = [
-          "bedrock:InvokeModel"
+          "bedrock-runtime:InvokeModel"
         ],
         Resource = "arn:aws:bedrock:us-east-1::foundation-model/*"
       }
