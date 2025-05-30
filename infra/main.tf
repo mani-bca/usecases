@@ -106,12 +106,12 @@ module "lambda_iam_role" {
 }
 
 
-module "lambda_iam_role" {
-  source         = "../modules/iam_role"
-  role_name      = var.lambda_role_name
-  policy_arns    = var.lambda_policy_arns
-  tags           = var.tags
-}
+# module "lambda_iam_role" {
+#   source         = "../modules/iam_role"
+#   role_name      = var.lambda_role_name
+#   policy_arns    = var.lambda_policy_arns
+#   tags           = var.tags
+# }
 
 module "lambda_ingest" {
   source          = "../modules/lambda"
