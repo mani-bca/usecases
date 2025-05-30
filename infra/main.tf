@@ -99,12 +99,11 @@ module "lambda_iam_role" {
         Action = [
           "bedrock:InvokeModel"
         ],
-        Resource = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v1"
+        Resource = "arn:aws:bedrock:us-east-1::foundation-model/*"
       }
     ]
   })
 }
-
 
 # module "lambda_iam_role" {
 #   source         = "../modules/iam_role"
