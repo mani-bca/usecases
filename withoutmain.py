@@ -1,24 +1,22 @@
-import os
-import json
-import logging
 import boto3
+import os
 import psycopg2
-import fitz
+import fitz  # PyMuPDF
 import tiktoken
+import logging
 import urllib.parse
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-REGION = os.environ.get("AWS_REGION", "us-east-1")
-SECRET_NAME = os.environ["DB_SECRET_NAME"]
-MODEL_ID = "amazon.titan-embed-text-v2:0"
+SECRET_NAME = os.environ['DB_SECRET_NAME']
+REGION = os.environ.get('AWS_REGION', 'us-east-1')
 
 def get_db_credentials():
     logger.info("Fetching database credentials from Secrets Manager")
     client = boto3.client('secretsmanager', region_name=REGION)
     secret = client.get_secret_value(SecretId=SECRET_NAME)
-    return json.loads(secret['SecretString']) 
+    return eval(secret['SecretString'])
 
 def connect_db():
     creds = get_db_credentials()
@@ -30,22 +28,6 @@ def connect_db():
         password=creds['password'],
         port=creds['port']
     )
-
-def get_titan_embedding(text):
-    logger.info("Calling Amazon Titan embedding model for ingestion")
-    client = boto3.client("bedrock-runtime", region_name=REGION)
-    payload = {
-        "inputText": text
-    }
-    response = client.invoke_model(
-        modelId=MODEL_ID,
-        contentType="application/json",
-        accept="application/json",
-        body=json.dumps(payload)
-    )
-    body = json.loads(response['body'].read())
-    return body["embedding"]
-
 
 def chunk_text(text, max_tokens=500):
     logger.info("Starting tokenization and chunking")
@@ -92,24 +74,18 @@ def lambda_handler(event, context):
         conn = connect_db()
         cur = conn.cursor()
 
-        logger.info("Ensuring documents table exists with correct vector dimension (1536)")
+        logger.info("Ensuring documents table exists")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS documents (
                 id SERIAL PRIMARY KEY,
                 chunk TEXT,
-                embedding VECTOR(1536) -- CORRECTED: Changed to 1536
+                embedding VECTOR(384)
             );
         """)
 
-        logger.info("Inserting chunks and generating embeddings into database")
-        for i, chunk in enumerate(chunks):
-            try:
-                embedding = get_titan_embedding(chunk) # Generate embedding for the chunk
-                cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, %s)", (chunk, embedding,))
-                logger.info(f"Inserted chunk {i+1}/{len(chunks)} with embedding.")
-            except Exception as e:
-                logger.error(f"Failed to generate embedding or insert chunk {i+1}: {e}")
-                continue 
+        logger.info("Inserting chunks into database")
+        for chunk in chunks:
+            cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, NULL)", (chunk,))
 
         conn.commit()
         cur.close()
