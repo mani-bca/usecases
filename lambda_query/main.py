@@ -9,7 +9,8 @@ logger.setLevel(logging.INFO)
 
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 SECRET_NAME = os.environ["DB_SECRET_NAME"]
-MODEL_ID = "amazon.titan-embed-text-v2:0" 
+MODEL_ID = "amazon.titan-embed-text-v2:0"
+EXPECTED_VECTOR_DIM = 1024
 
 def get_db_credentials():
     client = boto3.client('secretsmanager', region_name=REGION)
@@ -48,37 +49,52 @@ def lambda_handler(event, context):
         body = json.loads(event.get("body", "{}"))
         query = body.get("query")
 
-        if not query:
+        if not query or not isinstance(query, str) or not query.strip():
             return {
                 "statusCode": 400,
-                "body": json.dumps({"error": "Missing 'query'"})
+                "body": json.dumps({"error": "Missing or invalid 'query'"})
             }
 
         embedding = get_titan_embedding(query)
+        if len(embedding) != EXPECTED_VECTOR_DIM:
+            logger.warning(f"Unexpected embedding size: {len(embedding)} != {EXPECTED_VECTOR_DIM}")
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"error": "Invalid embedding vector dimension"})
+            }
+
+        # Convert list of floats to Postgres-compatible vector string
+        embedding_str = f"[{', '.join(map(str, embedding))}]"
 
         conn = connect_db()
         cur = conn.cursor()
 
         logger.info("Executing pgvector semantic search query")
         cur.execute("""
-            SELECT chunk, embedding <#> %s AS score
+            SELECT chunk, embedding <#> %s::vector AS score
             FROM documents
             WHERE embedding IS NOT NULL
             ORDER BY score ASC
             LIMIT 5;
-        """, (embedding,))
+        """, (embedding_str,))
 
         results = [{"chunk": row[0], "score": row[1]} for row in cur.fetchall()]
+
         cur.close()
         conn.close()
 
+        logger.info(f"Search successful. Returning {len(results)} results.")
         return {
             "statusCode": 200,
-            "body": json.dumps({"results": results})
+            "body": json.dumps({
+                "query": query,
+                "results": results,
+                "count": len(results)
+            })
         }
 
     except Exception as e:
-        logger.exception("Unhandled error in lambda")
+        logger.exception("Unhandled error in Lambda")
         return {
             "statusCode": 500,
             "body": json.dumps({"error": str(e)})
