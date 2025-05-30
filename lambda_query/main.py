@@ -9,7 +9,7 @@ logger.setLevel(logging.INFO)
 
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 SECRET_NAME = os.environ["DB_SECRET_NAME"]
-MODEL_ID = "amazon.titan-embed-text-v2" 
+MODEL_ID = "amazon.titan-embed-text-v2:0" 
 
 def get_db_credentials():
     client = boto3.client('secretsmanager', region_name=REGION)
