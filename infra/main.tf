@@ -86,7 +86,7 @@ module "db_secret" {
 }
 
 module "lambda_iam_role" {
-  source      = "./modules/iam_role"
+  source      = "../modules/iam_role"
   role_name   = var.lambda_role_name
   policy_arns = var.lambda_policy_arns
   tags        = var.tags
