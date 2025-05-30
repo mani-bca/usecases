@@ -86,6 +86,27 @@ module "db_secret" {
 }
 
 module "lambda_iam_role" {
+  source      = "./modules/iam_role"
+  role_name   = var.lambda_role_name
+  policy_arns = var.lambda_policy_arns
+  tags        = var.tags
+
+  inline_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "bedrock:InvokeModel"
+        ],
+        Resource = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2"
+      }
+    ]
+  })
+}
+
+
+module "lambda_iam_role" {
   source         = "../modules/iam_role"
   role_name      = var.lambda_role_name
   policy_arns    = var.lambda_policy_arns
