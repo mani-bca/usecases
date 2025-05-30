@@ -13,6 +13,7 @@ logger.setLevel(logging.INFO)
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 SECRET_NAME = os.environ["DB_SECRET_NAME"]
 MODEL_ID = "amazon.titan-embed-text-v2:0"
+EXPECTED_VECTOR_DIM = 1024
 
 def get_db_credentials():
     logger.info("Fetching database credentials from Secrets Manager")
@@ -46,7 +47,6 @@ def get_titan_embedding(text):
     body = json.loads(response['body'].read())
     return body["embedding"]
 
-
 def chunk_text(text, max_tokens=500):
     logger.info("Starting tokenization and chunking")
     tokenizer = tiktoken.get_encoding("cl100k_base")
@@ -74,8 +74,8 @@ def lambda_handler(event, context):
 
         if ext == ".pdf":
             logger.info("Extracting text from PDF")
-            doc = fitz.open(stream=file_bytes, filetype="pdf")
-            text = "\n".join(page.get_text() for page in doc)
+            with fitz.open(stream=file_bytes, filetype="pdf") as doc:
+                text = "\n".join(page.get_text() for page in doc)
         elif ext == ".txt":
             logger.info("Reading plain text file")
             text = file_bytes.decode("utf-8")
@@ -92,24 +92,31 @@ def lambda_handler(event, context):
         conn = connect_db()
         cur = conn.cursor()
 
-        logger.info("Ensuring documents table exists with correct vector dimension (1536)")
+        logger.info("Ensuring documents table exists with correct vector dimension (1024)")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS documents (
                 id SERIAL PRIMARY KEY,
                 chunk TEXT,
-                embedding VECTOR(1536) -- CORRECTED: Changed to 1536
+                embedding VECTOR(1024)
             );
         """)
 
         logger.info("Inserting chunks and generating embeddings into database")
         for i, chunk in enumerate(chunks):
             try:
-                embedding = get_titan_embedding(chunk) # Generate embedding for the chunk
-                cur.execute("INSERT INTO documents (chunk, embedding) VALUES (%s, %s)", (chunk, embedding,))
-                logger.info(f"Inserted chunk {i+1}/{len(chunks)} with embedding.")
+                embedding = get_titan_embedding(chunk)
+                if len(embedding) != EXPECTED_VECTOR_DIM:
+                    logger.warning(f"Chunk {i+1} embedding dimension mismatch: {len(embedding)} != {EXPECTED_VECTOR_DIM}")
+                    continue
+
+                cur.execute(
+                    "INSERT INTO documents (chunk, embedding) VALUES (%s, %s)", (chunk, embedding)
+                )
+                logger.info(f"Inserted chunk {i+1}/{len(chunks)} successfully")
             except Exception as e:
-                logger.error(f"Failed to generate embedding or insert chunk {i+1}: {e}")
-                continue 
+                logger.error(f"Failed to insert chunk {i+1}: {e}")
+                conn.rollback()  # Prevent transaction abortion on error
+                continue
 
         conn.commit()
         cur.close()
