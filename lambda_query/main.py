@@ -78,16 +78,16 @@ def lambda_handler(event, context):
             LIMIT 5;
         """, (embedding_str,))
 
- raw_results = cur.fetchall()
-results = [
-    {
-        "rank": idx + 1,
-        "chunk": row[0].strip(),
-        "score": round(row[1], 4),
-        "confidence": round(1 - row[1] / 2, 3)
-    }
-    for idx, row in enumerate(raw_results)
-]
+        raw_results = cur.fetchall()
+        results = [
+            {
+                "rank": idx + 1,
+                "chunk": row[0].strip(),
+                "score": round(row[1], 4),
+                "confidence": round(1 - row[1] / 2, 3)
+            }
+            for idx, row in enumerate(raw_results)
+        ]
 
         cur.close()
         conn.close()
