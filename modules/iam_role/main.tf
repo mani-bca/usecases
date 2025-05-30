@@ -19,6 +19,15 @@ resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.this.name
 }
 
+resource "aws_iam_role_policy" "custom_inline" {
+  count = var.inline_policy != null ? 1 : 0
+
+  name = "${var.role_name}-inline"
+  role = aws_iam_role.this.id
+
+  policy = var.inline_policy
+}
+
 # output "iam_role_arn" {
 #   value = aws_iam_role.this.arn
 # }
