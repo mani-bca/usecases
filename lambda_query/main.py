@@ -9,8 +9,7 @@ logger.setLevel(logging.INFO)
 
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 SECRET_NAME = os.environ["DB_SECRET_NAME"]
-PROVIDER = "amazon"
-MODEL_ID = "amazon.titan-embed-text-v2"
+MODEL_ID = "amazon.titan-embed-text-v1" 
 
 def get_db_credentials():
     client = boto3.client('secretsmanager', region_name=REGION)
@@ -29,7 +28,7 @@ def connect_db():
     )
 
 def get_titan_embedding(text):
-    logger.info("Calling Amazon Titan v2 embedding model")
+    logger.info("Calling Amazon Titan embedding model")
     client = boto3.client("bedrock-runtime", region_name=REGION)
     payload = {
         "inputText": text
