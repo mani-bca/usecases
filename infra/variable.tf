@@ -1,120 +1,86 @@
-variable "name" {
-  description = "Name of the IAM resource"
-  type        = string
-}
-
-variable "type" {
-  description = "IAM type: role, user, or group"
-  type        = string
-}
-
-variable "aws_managed_policy_arns" {
-  description = "List of managed policies to attach"
-  type        = list(string)
-}
-
-#############lambda####
-variable "function_name" {
-  type = string
-}
-
-#variable "role_arn" {
-#  type = string
-#}
-
-variable "image_uri" {
-  type = string
-}
-
-variable "timeout" {
-  type = number
-  default = 10
-}
-
-variable "memory_size" {
-  type = number
-  default = 128
-}
-
-variable "architectures" {
-  type = list(string)
-  default = ["x86_64"]
-}
-
-variable "environment_variables" {
-  type = map(string)
-  default = {}
-}
-
-variable "tags" {
-  type = map(string)
-  default = {}
-}
-#################api_gateway
-
-#variable "region" {
-#  type        = string
-#  description = "AWS region"
-#}
-
-variable "api_name" {
-  type = string
-}
-
-variable "description" {
-  type = string
-}
-
-variable "resource_path" {
-  type = string
-}
-
-variable "http_method" {
-  type = string
-}
-
-variable "authorization" {
-  type = string
-}
-
-#variable "lambda_invoke_arn" {
-#  type = string
-#}
-
-variable "stage_name" {
-  type = string
-}
-##############ecr
-variable "region" {
-  description = "AWS region to deploy resources"
+variable "aws_region" {
+  description = "AWS region where resources will be created"
   type        = string
   default     = "us-east-1"
 }
 
-#variable "repository_name" {
-#  description = "Name of the ECR repository"
-#  type        = string
-#}
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}
 
-#variable "image_tag_mutability" {
-#  description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE"
-#  type        = string
-#  default     = "MUTABLE"
-  
-#  validation {
-#    condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
-#    error_message = "Image tag mutability must be either MUTABLE or IMMUTABLE."
-#  }
-#}
+variable "environment" {
+  description = "Environment (dev, staging, prod)"
+  type        = string
+}
 
-#variable "scan_on_push" {
-#  description = "Indicates whether images are scanned after being pushed to the repository"
-#  type        = bool
-#  default     = true
-#}
+# EC2 Variables
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+}
 
-#variable "tags" {
-#  description = "A map of tags to assign to the resource"
-#  type        = map(string)
-#  default     = {}
-#}
+variable "instance_count" {
+  description = "Number of EC2 instances to create"
+  type        = number
+  default     = 1
+}
+
+variable "subnet_ids" {
+  description = "List of subnet IDs for EC2 instances"
+  type        = list(string)
+}
+
+variable "vpc_security_group_ids" {
+  description = "List of security group IDs for EC2 instances"
+  type        = list(string)
+}
+
+variable "key_name" {
+  description = "EC2 key pair name"
+  type        = string
+  default     = null
+}
+
+variable "ami_id" {
+  description = "AMI ID for EC2 instances"
+  type        = string
+}
+
+# Lambda Variables
+variable "lambda_runtime" {
+  description = "Runtime for Lambda functions"
+  type        = string
+  default     = "python3.9"
+}
+
+variable "lambda_timeout" {
+  description = "Timeout for Lambda functions (in seconds)"
+  type        = number
+  default     = 30
+}
+
+variable "lambda_memory_size" {
+  description = "Memory size for Lambda functions (in MB)"
+  type        = number
+  default     = 128
+}
+
+# CloudWatch Event Variables
+variable "start_cron_expression" {
+  description = "Cron expression for starting EC2 instances (default: 8:00 AM UTC Monday-Friday)"
+  type        = string
+  default     = "cron(0 8 ? * MON-FRI *)"
+}
+
+variable "stop_cron_expression" {
+  description = "Cron expression for stopping EC2 instances (default: 5:00 PM UTC Monday-Friday)"
+  type        = string
+  default     = "cron(0 17 ? * MON-FRI *)"
+}
+
+variable "tags" {
+  description = "Tags to be applied to all resources"
+  type        = map(string)
+  default     = {}
+}
