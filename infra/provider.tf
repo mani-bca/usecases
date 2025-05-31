@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket         = "dev-terraform-state-platform"
-    key            = "usecase34/terraform.tfstate"
+    key            = "usecase2/terraform.tfstate"
     region         = "us-east-1"
     use_lockfile   = true
     encrypt        = true
@@ -21,6 +21,7 @@ provider "aws" {
   
   default_tags {
     tags = {
+    #   ManagedBy   = "Terraform"
       Environment = var.environment
       Project     = var.project_name
     }

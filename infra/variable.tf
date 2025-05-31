@@ -1,3 +1,6 @@
+################################
+# General Variables
+################################
 variable "aws_region" {
   description = "AWS region to deploy resources"
   type        = string
@@ -18,8 +21,9 @@ variable "tags" {
   type        = map(string)
 }
 
+################################
 # VPC Variables
-
+################################
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
@@ -45,8 +49,9 @@ variable "create_nat_gateway" {
   type        = bool
 }
 
+################################
 # EC2 Variables
-
+################################
 variable "web_server_ami" {
   description = "AMI ID for web servers"
   type        = string
@@ -62,10 +67,10 @@ variable "ssh_key_name" {
   type        = string
 }
 
-# variable "admin_ip_cidr" {
-#   description = "CIDR block for admin IP (for SSH access)"
-#   type        = string
-# }
+variable "admin_ip_cidr" {
+  description = "CIDR block for admin IP (for SSH access)"
+  type        = string
+}
 
 variable "root_volume_type" {
   description = "Volume type for the root block device"
@@ -78,35 +83,85 @@ variable "root_volume_size" {
 }
 
 variable "iam_instance_profile" {
-  description = "IAM instance profile to attach to the instance"
+  description = "IAM instance profile to attach to the instance (optional)"
   type        = string
 }
-# variable for sg
-variable "alb_sg_ingress_cidr" {
-  description = "Ingress rules for ALB"
-  type = list(object({
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
-    description = string
-  }))
-  default = []
+
+################################
+# RDS Variables
+################################
+variable "db_allocated_storage" {
+  description = "Allocated storage for RDS instance (in GB)"
+  type        = number
 }
 
-variable "alb_sg_egress_rules" {
-  description = "Egress rules for ALB"
-  type = list(object({
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
-    description = string
-  }))
-  default = []
+variable "db_storage_type" {
+  description = "Storage type for RDS instance"
+  type        = string
 }
-variable "ssh_allowed_cidrs" {
-  description = "CIDR blocks allowed to SSH to instances"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
+
+variable "db_engine_version" {
+  description = "MySQL engine version"
+  type        = string
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+}
+
+variable "db_name" {
+  description = "Name of the database"
+  type        = string
+}
+
+variable "db_username" {
+  description = "Username for the database"
+  type        = string
+}
+
+variable "db_password" {
+  description = "Password for the database"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_parameter_group" {
+  description = "Parameter group for RDS instance"
+  type        = string
+}
+
+variable "db_multi_az" {
+  description = "Enable Multi-AZ deployment for RDS"
+  type        = bool
+}
+
+variable "db_backup_retention" {
+  description = "Number of days to retain backups"
+  type        = number
+}
+
+variable "db_backup_window" {
+  description = "Preferred backup window"
+  type        = string
+}
+
+variable "db_maintenance_window" {
+  description = "Preferred maintenance window"
+  type        = string
+}
+
+variable "db_deletion_protection" {
+  description = "Whether deletion protection is enabled"
+  type        = bool
+}
+
+variable "db_skip_final_snapshot" {
+  description = "Whether to skip the final snapshot when the instance is deleted"
+  type        = bool
+}
+
+variable "db_apply_immediately" {
+  description = "Whether to apply changes immediately or during the next maintenance window"
+  type        = bool
 }

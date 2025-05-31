@@ -1,6 +1,6 @@
 # VPC Module
 module "vpc" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/vpc?ref=main"
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/vpc?ref=45f8b42"
   name                 = "${var.project_name}-${var.environment}"
   vpc_cidr             = var.vpc_cidr
   availability_zones   = var.availability_zones
@@ -13,42 +13,41 @@ module "vpc" {
     Project     = var.project_name
   }
 }
+    
 
-# Security Group for EC2 Instances
 module "web_server_sg" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/security_group?ref=main"
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/sg2?ref=45f8b42"
   
-  name_prefix  = "${var.project_name}-${var.environment}"
-  name         = "ec2-sg"
-  description  = "Security group for EC2 instances"
-  vpc_id       = module.vpc.vpc_id
+  name        = "web-server"
+  name_prefix = var.project_name
+  description = "Security group for web servers"
+  vpc_id      = module.vpc.vpc_id
   
-  ingress_with_source_security_group_id = [
+  # Ingress rules - making sure all attributes are present
+  ingress_rules = [
     {
-      from_port               = 80
-      to_port                 = 80
-      protocol                = "tcp"
-      source_security_group_id = module.alb_sg.security_group_id
-      description             = "Allow HTTP from ALB"
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"  # Make sure protocol is explicitly set for all rules
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow HTTP from anywhere"
     },
     {
-      from_port               = 4000
-      to_port                 = 4000
-      protocol                = "tcp"
-      source_security_group_id = module.alb_sg.security_group_id
-      description             = "Allow HTTP from ALB dev"
-    }
-  ]
-  
-  ingress_with_cidr_blocks = [
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"  # Make sure protocol is explicitly set for all rules
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow HTTPS from anywhere"
+    },
     {
       from_port   = 22
       to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = var.ssh_allowed_cidrs
-      description = "Allow SSH from specified CIDRs"
+      protocol    = "tcp"  # The error was likely here - missing protocol
+      cidr_blocks = [var.admin_ip_cidr]
+      description = "Allow SSH from admin IP"
     }
   ]
+  
   egress_rules = [
     {
       from_port   = 0
@@ -58,41 +57,47 @@ module "web_server_sg" {
       description = "Allow all outbound traffic"
     }
   ]
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
-  depends_on = [
-    module.vpc,
-    module.alb_sg
-  ]
+  
+  tags = var.tags
 }
 
-# Security Group for ALB
-module "alb_sg" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/security_group?ref=main"
+module "rds_sg" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/sg2?ref=45f8b42"
   
-  name_prefix  = "${var.project_name}-${var.environment}"
-  name         = "alb-sg"
-  description  = "Security group for the ALB"
-  vpc_id       = module.vpc.vpc_id
+  name        = "rds"
+  name_prefix = var.project_name
+  description = "Security group for RDS MySQL instance"
+  vpc_id      = module.vpc.vpc_id
   
-  ingress_with_cidr_blocks = var.alb_sg_ingress_cidr
+
+  ingress_rules = []
   
-  egress_rules = var.alb_sg_egress_rules
-  
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
-  depends_on = [
-    module.vpc
+  source_security_group_rules = [
+    {
+      from_port                = 3306
+      to_port                  = 3306
+      protocol                 = "tcp"  # Make sure protocol is explicitly set
+      source_security_group_id = module.web_server_sg.security_group_id
+      description              = "Allow MySQL from web servers"
+    }
   ]
+  
+  # Make sure egress rules have all required attributes
+  egress_rules = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow all outbound traffic"
+    }
+  ]
+  
+  tags = var.tags
 }
-
-
+# EC2 Instances
 module "web_server_1" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=main"
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=45f8b42"
   
   name_prefix                = "${var.project_name}-web-server-1"
   ami_id                     = var.web_server_ami
@@ -101,22 +106,17 @@ module "web_server_1" {
   security_group_ids         = [module.web_server_sg.security_group_id]
   key_name                   = var.ssh_key_name
   associate_public_ip_address = true
-  user_data_script          = "${path.root}/scripts/shell.sh"
+  user_data_script          = "${path.root}/scripts/ecom.sh"
   
   root_volume_type           = var.root_volume_type
   root_volume_size           = var.root_volume_size
   iam_instance_profile       = var.iam_instance_profile
   
   tags = var.tags
-  depends_on = [
-    module.vpc,
-    module.alb_sg,
-    module.web_server_sg
-  ]
 }
 
 module "web_server_2" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=main"
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=45f8b42"
   
   name_prefix                = "${var.project_name}-web-server-2"
   ami_id                     = var.web_server_ami
@@ -125,128 +125,68 @@ module "web_server_2" {
   security_group_ids         = [module.web_server_sg.security_group_id]
   key_name                   = var.ssh_key_name
   associate_public_ip_address = true
-  user_data_script          = "${path.root}/scripts/dev.sh"
+  user_data_script          = "${path.root}/scripts/ecom.sh"
   
   root_volume_type           = var.root_volume_type
   root_volume_size           = var.root_volume_size
   iam_instance_profile       = var.iam_instance_profile
   
   tags = var.tags
-  depends_on = [
-    module.vpc,
-    module.alb_sg,
-    module.web_server_sg
-  ]
 }
 
-module "alb" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/alb?ref=main"
+module "rds" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/rds?ref=45f8b42"
   
-  name_prefix = "${var.project_name}-${var.environment}"
-  vpc_id      = module.vpc.vpc_id
-  subnet_ids  = module.vpc.public_subnet_ids
-  security_group_ids = [module.alb_sg.security_group_id]
+  name_prefix = "${var.project_name}-mysql"
   
-  # Target Groups
-  target_groups = {
-    openproject = {
-      port     = 80
-      protocol = "HTTP"
-      health_check = {
-        path                = "/"
-        port                = "traffic-port"
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 5
-        interval            = 30
-        matcher             = "200"
-      }
-    }
-  }
-   
-  default_target_group_key = "openproject"
+  # Database configuration
+  engine           = "mysql"
+  engine_version   = var.db_engine_version
+  instance_class   = var.db_instance_class
+  allocated_storage = var.db_allocated_storage
+  storage_type     = var.db_storage_type
   
-  # Target Group Attachments
-  target_group_attachments = [
-    {
-      target_group_key = "openproject"
-      target_id        = module.web_server_1.instance_id
-      port             = 80
-    }
-  ]
-  # Path-based routing rules
-  path_based_rules = {
-    openproject = {
-      priority      = 20
-      path_patterns = ["/"]
-      target_group_key = "openproject"
-    }
-  }
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
-  depends_on = [
-    module.vpc,
-    module.alb_sg,
-    module.web_server_sg,
-    module.web_server_1,
-    module.web_server_2
-  ]
+  db_name  = var.db_name
+  username = var.db_username
+  password = var.db_password
+  port     = 3306
+  
+  # Network configuration
+  subnet_ids             = module.vpc.private_subnet_ids
+  vpc_security_group_ids = [module.rds_sg.security_group_id]
+  multi_az               = var.db_multi_az
+  publicly_accessible    = false
+  
+  parameter_group_name   = var.db_parameter_group
+  
+  backup_retention_period = var.db_backup_retention
+  backup_window           = var.db_backup_window
+  maintenance_window      = var.db_maintenance_window
+  
+  performance_insights_enabled = false
+  performance_insights_retention_period = 7
+  
+  monitoring_interval = 0
+  monitoring_role_arn = null
+  
+  deletion_protection = var.db_deletion_protection
+  skip_final_snapshot = var.db_skip_final_snapshot
+  
+  auto_minor_version_upgrade = true
+  allow_major_version_upgrade = false
+  
+  # Apply changes immediately
+  apply_immediately = var.db_apply_immediately
+  
+  tags = var.tags
 }
 
-module "alb2" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/alb?ref=main"
-  
-  name_prefix = "${var.project_name}-${var.environment}-sec"
-  vpc_id      = module.vpc.vpc_id
-  subnet_ids  = module.vpc.public_subnet_ids
-  security_group_ids = [module.alb_sg.security_group_id]
-  
-  # Target Groups
-  target_groups = {
-    devlake = {
-      port     = 4000
-      protocol = "HTTP"
-      health_check = {
-        path                = "/"
-        port                = "traffic-port"
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 5
-        interval            = 30
-        matcher             = "200"
-      }
-    }
+output "vpc_details" {
+  description = "VPC details"
+  value = {
+    vpc_id            = module.vpc.vpc_id
+    public_subnets    = module.vpc.public_subnet_ids
+    private_subnets   = module.vpc.private_subnet_ids
+    nat_gateway_id    = module.vpc.nat_gateway_id
   }
-   
-  default_target_group_key = "devlake"
-  
-  # Target Group Attachments
-  target_group_attachments = [
-    {
-      target_group_key = "devlake"
-      target_id        = module.web_server_2.instance_id
-      port             = 4000
-    }
-  ]
-  # Path-based routing rules
-  path_based_rules = {
-    devlake = {
-      priority      = 20
-      path_patterns = ["/"]
-      target_group_key = "devlake"
-    }
-  }
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
-  }
-  depends_on = [
-    module.vpc,
-    module.alb_sg,
-    module.web_server_sg,
-    module.web_server_1,
-    module.web_server_2
-  ]
 }
