@@ -14,8 +14,13 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_rds_instance"></a> [rds\_instance](#module\_rds\_instance) | ../modules/rds/ | n/a |
-| <a name="module_sg_rds"></a> [sg\_rds](#module\_sg\_rds) | ../modules/sg | n/a |
+| <a name="module_alb"></a> [alb](#module\_alb) | ../module/alb | n/a |
+| <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | ../module/security_group | n/a |
+| <a name="module_ecs_execution_role"></a> [ecs\_execution\_role](#module\_ecs\_execution\_role) | ../module/iam_role | n/a |
+| <a name="module_ecs_fargate"></a> [ecs\_fargate](#module\_ecs\_fargate) | ../module/ecs_fargate | n/a |
+| <a name="module_ecs_sg"></a> [ecs\_sg](#module\_ecs\_sg) | ../module/security_group | n/a |
+| <a name="module_ecs_task_role"></a> [ecs\_task\_role](#module\_ecs\_task\_role) | ../module/iam_role | n/a |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | ../module/vpc | n/a |
 
 ## Resources
 
@@ -25,35 +30,33 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_parameter_group_family"></a> [parameter\_group\_family](#input\_parameter\_group\_family) | n/a | `string` | n/a | yes |
-| <a name="input_parameter_group_name"></a> [parameter\_group\_name](#input\_parameter\_group\_name) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_allocated_storage"></a> [rds\_instance\_allocated\_storage](#input\_rds\_instance\_allocated\_storage) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_class"></a> [rds\_instance\_class](#input\_rds\_instance\_class) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_db_name"></a> [rds\_instance\_db\_name](#input\_rds\_instance\_db\_name) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_engine"></a> [rds\_instance\_engine](#input\_rds\_instance\_engine) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_identifier"></a> [rds\_instance\_identifier](#input\_rds\_instance\_identifier) | ############RDS | `string` | n/a | yes |
-| <a name="input_rds_instance_kms_key_id"></a> [rds\_instance\_kms\_key\_id](#input\_rds\_instance\_kms\_key\_id) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_multi_az"></a> [rds\_instance\_multi\_az](#input\_rds\_instance\_multi\_az) | n/a | `bool` | n/a | yes |
-| <a name="input_rds_instance_parameter_description"></a> [rds\_instance\_parameter\_description](#input\_rds\_instance\_parameter\_description) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_parameter_group"></a> [rds\_instance\_parameter\_group](#input\_rds\_instance\_parameter\_group) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_parameter_group_family"></a> [rds\_instance\_parameter\_group\_family](#input\_rds\_instance\_parameter\_group\_family) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_storage_encrypted"></a> [rds\_instance\_storage\_encrypted](#input\_rds\_instance\_storage\_encrypted) | n/a | `bool` | n/a | yes |
-| <a name="input_rds_instance_subnet_group"></a> [rds\_instance\_subnet\_group](#input\_rds\_instance\_subnet\_group) | n/a | `string` | n/a | yes |
-| <a name="input_rds_instance_tags"></a> [rds\_instance\_tags](#input\_rds\_instance\_tags) | n/a | `map` | <pre>{<br/>  "terraform": "True"<br/>}</pre> | no |
-| <a name="input_rds_secret_id"></a> [rds\_secret\_id](#input\_rds\_secret\_id) | n/a | `string` | n/a | yes |
-| <a name="input_rds_username"></a> [rds\_username](#input\_rds\_username) | n/a | `string` | n/a | yes |
-| <a name="input_secret_tags"></a> [secret\_tags](#input\_secret\_tags) | n/a | `map` | <pre>{<br/>  "terraform": "True"<br/>}</pre> | no |
-| <a name="input_secret_values"></a> [secret\_values](#input\_secret\_values) | n/a | `map` | `{}` | no |
-| <a name="input_sg_description"></a> [sg\_description](#input\_sg\_description) | n/a | `any` | n/a | yes |
-| <a name="input_sg_ingress_rules"></a> [sg\_ingress\_rules](#input\_sg\_ingress\_rules) | n/a | `map` | n/a | yes |
-| <a name="input_sg_name"></a> [sg\_name](#input\_sg\_name) | ###############security group | `any` | n/a | yes |
-| <a name="input_sg_tags"></a> [sg\_tags](#input\_sg\_tags) | n/a | `map(string)` | <pre>{<br/>  "terraform": "True"<br/>}</pre> | no |
-| <a name="input_sg_vpc_id"></a> [sg\_vpc\_id](#input\_sg\_vpc\_id) | n/a | `any` | n/a | yes |
-| <a name="input_subnet_group_name"></a> [subnet\_group\_name](#input\_subnet\_group\_name) | n/a | `any` | n/a | yes |
-| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | n/a | `list(string)` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map` | <pre>{<br/>  "terraform": "True"<br/>}</pre> | no |
+| <a name="input_appointment_desired_count"></a> [appointment\_desired\_count](#input\_appointment\_desired\_count) | n/a | `number` | n/a | yes |
+| <a name="input_appointment_health_path"></a> [appointment\_health\_path](#input\_appointment\_health\_path) | n/a | `string` | n/a | yes |
+| <a name="input_appointment_image"></a> [appointment\_image](#input\_appointment\_image) | n/a | `string` | n/a | yes |
+| <a name="input_appointment_path"></a> [appointment\_path](#input\_appointment\_path) | n/a | `string` | n/a | yes |
+| <a name="input_appointment_port"></a> [appointment\_port](#input\_appointment\_port) | n/a | `number` | n/a | yes |
+| <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | List of availability zones | `list(string)` | n/a | yes |
+| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | ECS Cluster name | `string` | n/a | yes |
+| <a name="input_cpu"></a> [cpu](#input\_cpu) | CPU units for the task | `number` | n/a | yes |
+| <a name="input_create_nat_gateway"></a> [create\_nat\_gateway](#input\_create\_nat\_gateway) | Whether to create a NAT Gateway | `bool` | n/a | yes |
+| <a name="input_memory"></a> [memory](#input\_memory) | Memory for the task | `number` | n/a | yes |
+| <a name="input_name"></a> [name](#input\_name) | VPC name | `string` | n/a | yes |
+| <a name="input_patient_desired_count"></a> [patient\_desired\_count](#input\_patient\_desired\_count) | n/a | `number` | n/a | yes |
+| <a name="input_patient_health_path"></a> [patient\_health\_path](#input\_patient\_health\_path) | n/a | `string` | n/a | yes |
+| <a name="input_patient_image"></a> [patient\_image](#input\_patient\_image) | n/a | `string` | n/a | yes |
+| <a name="input_patient_path"></a> [patient\_path](#input\_patient\_path) | n/a | `string` | n/a | yes |
+| <a name="input_patient_port"></a> [patient\_port](#input\_patient\_port) | n/a | `number` | n/a | yes |
+| <a name="input_private_subnet_cidrs"></a> [private\_subnet\_cidrs](#input\_private\_subnet\_cidrs) | CIDR blocks for private subnets | `list(string)` | n/a | yes |
+| <a name="input_public_subnet_cidrs"></a> [public\_subnet\_cidrs](#input\_public\_subnet\_cidrs) | CIDR blocks for public subnets | `list(string)` | n/a | yes |
+| <a name="input_region"></a> [region](#input\_region) | AWS region | `string` | n/a | yes |
+| <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | CIDR block for the VPC | `string` | n/a | yes |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_alb_dns_name"></a> [alb\_dns\_name](#output\_alb\_dns\_name) | n/a |
+| <a name="output_ecs_service_ids"></a> [ecs\_service\_ids](#output\_ecs\_service\_ids) | n/a |
+| <a name="output_ecs_service_names"></a> [ecs\_service\_names](#output\_ecs\_service\_names) | n/a |
+| <a name="output_ecs_task_definition_arns"></a> [ecs\_task\_definition\_arns](#output\_ecs\_task\_definition\_arns) | n/a |
 <!-- END_TF_DOCS -->

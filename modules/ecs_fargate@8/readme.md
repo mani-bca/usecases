@@ -1,0 +1,1 @@
+suport 8th usecase fargate

@@ -1,9 +1,7 @@
-variable "raw_bucket_name" { 
-  type = string 
+variable "region" {
+  description = "AWS region"
+  type        = string
 }
-# variable "processed_bucket_name" { 
-#   type = string 
-# }
 
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
@@ -34,110 +32,111 @@ variable "name" {
   type        = string
 }
 
-variable "db_name" { 
-  type = string 
-}
-variable "db_username" { 
-  type = string 
-}
-variable "db_password" { 
-  type = string 
-  sensitive = true 
-}
-variable "db_instance_class" { 
-  type = string 
-}
-variable "db_secret_name" { 
-  type = string 
+variable "cluster_name" {
+  description = "ECS Cluster name"
+  type        = string
 }
 
-variable "lambda_code_bucket" { 
-  type = string 
-}
-variable "ingest_lambda_key" { 
-  type = string 
-}
-variable "search_lambda_key" { 
-  type = string 
+#variable "task_family" {
+#  description = "Task definition family"
+#  type        = string
+#}
+
+variable "cpu" {
+  description = "CPU units for the task"
+  type        = number
 }
 
-variable "query_lambda_key" { 
-  type = string 
+variable "memory" {
+  description = "Memory for the task"
+  type        = number
 }
 
+#variable "execution_role_arn" {
+#  description = "Execution role ARN"
+#  type        = string
+#}
 
-variable "ingest_lambda_name" { 
-  type = string 
-}
-variable "search_lambda_name" { 
-  type = string 
-}
+#variable "task_role_arn" {
+#  description = "Task role ARN"
+#  type        = string
+#}
 
-variable "query_lambda_name" { 
-  type = string 
-}
-# variable "ingest_lambda_handler" { 
-#   type = string 
+#variable "container_name" {
+#  description = "Container name"
+#  type        = string
+#}
+
+#variable "container_image" {
+#  description = "Container image"
+#  type        = string
+#}
+
+#variable "container_port" {
+#  description = "Container port"
+#  type        = number
+#}
+
+# variable "subnet_ids" {
+#   description = "List of subnet IDs for ECS services"
+#   type        = list(string)
 # }
-# variable "search_lambda_handler" { 
-#   type = string 
+
+#variable "services" {
+#  description = "List of ECS services"
+#  type = list(object({
+#    name             = string
+#    desired_count    = number
+#    security_groups  = list(string)
+#    assign_public_ip = bool
+#    load_balancer = optional(object({
+#      target_group_arn = string
+#    }))
+#  }))
+#}
+# variable "vpc_id" {
+#   description = "VPC ID for ECS and security groups"
+#   type        = string
 # }
 
-variable "lambda_runtime" { 
+#variable "lb_target_group_arn_1" {
+#  description = "Target group ARN for service1"
+#  type        = string
+#}
+
+#variable "lb_target_group_arn_2" {
+#  description = "Target group ARN for service1"
+#  type        = string
+#}
+
+variable "appointment_port" { 
+  type = number 
+}
+variable "appointment_path" { 
   type = string 
 }
-variable "lambda_role_name" { 
+variable "appointment_health_path" { 
   type = string 
 }
-variable "lambda_policy_arns" { 
-  type = list(string) 
+variable "appointment_desired_count" { 
+  type = number 
 }
-
-variable "api_name" { 
+variable "appointment_image" { 
   type = string 
 }
 
-variable "tags" { 
-  type = map(string) 
+variable "patient_port" { 
+  type = number 
 }
-
-variable "lambda_egress_rules" {
-  description = "Egress rules for Lambda SG"
-  type = list(object({
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = optional(list(string))
-  }))
+variable "patient_path" { 
+  type = string 
 }
-
-
-variable "rds_ingress_rules" {
-  description = "Ingress rules for RDS SG"
-  type = list(object({
-    from_port       = number
-    to_port         = number
-    protocol        = string
-    security_groups = optional(list(string))
-    cidr_blocks     = optional(list(string))
-  }))
+variable "patient_health_path" { 
+  type = string 
 }
-
-variable "rds_egress_rules" {
-  description = "Egress rules for RDS SG"
-  type = list(object({
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = optional(list(string))
-  }))
+variable "patient_desired_count" { 
+  type = number 
 }
-variable "qurey_layers" {
-  description = "List of Lambda layer ARNs for the query lambda."
-  type        = list(string)
-  default     = []
-}
-variable "api_stage_name" {
-  type = string
-  default = "$default"
+variable "patient_image" { 
+  type = string 
 }

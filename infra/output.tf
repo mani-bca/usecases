@@ -1,19 +1,15 @@
-output "raw_bucket_name" {
-  value = module.raw_s3_bucket.bucket_name
+output "alb_dns_name" {
+  value = module.alb.alb_dns_name
 }
 
-output "db_endpoint" {
-  value = module.rds_postgres.rds_endpoint
+output "ecs_service_names" {
+  value = module.ecs_fargate.ecs_service_names
 }
 
-output "lambda_search_url" {
-  value = module.search_api.api_url
+output "ecs_service_ids" {
+  value = module.ecs_fargate.ecs_service_ids
 }
 
-output "db_secret_arn" {
-  value = module.db_secret.secret_arn
-}
-
-output "lambda_ingest_name" {
-  value = module.lambda_ingest.lambda_name
+output "ecs_task_definition_arns" {
+  value = module.ecs_fargate.ecs_task_definition_arns
 }
