@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket         = "dev-terraform-state-platform"
-    key            = "usecase5/terraform.tfstate"
+    key            = "usecase34/terraform.tfstate"
     region         = "us-east-1"
     use_lockfile   = true
     encrypt        = true
@@ -18,4 +18,11 @@ terraform {
 }
 provider "aws" {
   region = var.aws_region
+  
+  default_tags {
+    tags = {
+      Environment = var.environment
+      Project     = var.project_name
+    }
+  }
 }

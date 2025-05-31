@@ -1,10 +1,10 @@
-name: Terraform image resize
+name: Terraform Two Tier Workflow
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    # paths:
-    #   - 'infra/**'
+    paths:
+      - 'infra/**'
   workflow_dispatch:
     inputs:
       action:
@@ -24,7 +24,7 @@ env:
 
 permissions:
   id-token: write
-  contents: write
+  contents: read
 
 jobs:
   infra-provision:
@@ -46,34 +46,6 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Generate terraform docs
-        uses: terraform-docs/gh-actions@main
-        with:          
-          working-dir: ./infra
-          git-push: true
-          output-file: README.md
-          output-method: inject
-          config-file: disabled
-          atlantis-file: disabled
-          find-dir: disabled
-          recursive: false
-          recursive-path: modules
-          output-format: markdown table
-          output-template: <!-- BEGIN_TF_DOCS -->\n{{ .Content }}\n<!-- END_TF_DOCS -->"
-          indention: 2
-          git-commit-message: terraform-docs:automated action
-          git-push-sign-off: false
-          fail-on-diff: false
-
-      - name: setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - name: Build the node.js application
-        run: |
-          cd lambda_package
-          npm init -y
-          npm install aws-sdk sharp --platform=linux --arch=x64
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -81,14 +53,6 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-
-      - name: Terraform test
-        run: terraform test
-        continue-on-error: true
-
-      - name: Terraform Format
-        id: fmt
-        run: terraform fmt -recursive
 
       - name: Terraform Validate
         run: terraform validate

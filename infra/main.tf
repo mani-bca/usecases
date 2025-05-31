@@ -1,93 +1,252 @@
-
-module "lambda_iam" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/iam?ref=main"
-
-  role_name           = "${var.lambda_function_name}-role"
-  policy_name         = "${var.lambda_function_name}-policy"
-  policy_description  = "IAM policy for Lambda function ${var.lambda_function_name}"
-  service_principal   = "lambda.amazonaws.com"
-  enable_s3_trigger   = true
-  function_name       = var.lambda_function_name
-  s3_bucket_arn       = module.s3_bucket_original.bucket_arn
+# VPC Module
+module "vpc" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/vpc?ref=main"
+  name                 = "${var.project_name}-${var.environment}"
+  vpc_cidr             = var.vpc_cidr
+  availability_zones   = var.availability_zones
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
+  create_nat_gateway   = var.create_nat_gateway
   
-  policy_statements = [
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
+
+# Security Group for EC2 Instances
+module "web_server_sg" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/security_group?ref=main"
+  
+  name_prefix  = "${var.project_name}-${var.environment}"
+  name         = "ec2-sg"
+  description  = "Security group for EC2 instances"
+  vpc_id       = module.vpc.vpc_id
+  
+  ingress_with_source_security_group_id = [
     {
-      Action = [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ]
-      Effect   = "Allow"
-      Resource = "arn:aws:logs:*:*:*"
+      from_port               = 80
+      to_port                 = 80
+      protocol                = "tcp"
+      source_security_group_id = module.alb_sg.security_group_id
+      description             = "Allow HTTP from ALB"
     },
     {
-      Action = [
-        "s3:GetObject"
-      ]
-      Effect   = "Allow"
-      Resource = "${module.s3_bucket_original.bucket_arn}/*"
-    },
-    {
-      Action = [
-        "s3:PutObject"
-      ]
-      Effect   = "Allow"
-      Resource = "${module.s3_bucket_resized.bucket_arn}/*"
-    },
-    {
-      Action = [
-        "sns:Publish"
-      ]
-      Effect   = "Allow"
-      Resource = module.sns_topic.topic_arn
+      from_port               = 4000
+      to_port                 = 4000
+      protocol                = "tcp"
+      source_security_group_id = module.alb_sg.security_group_id
+      description             = "Allow HTTP from ALB dev"
     }
   ]
-
-  tags = var.tags
-}
-
-module "s3_bucket_original" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/s3?ref=main"
-
-  bucket_name         = var.source_bucket_name
-  tags                = var.tags
-  enable_notification = true
-  lambda_function_arn = module.lambda_resize.function_arn
-  lambda_permission   = module.lambda_iam.s3_permission
-}
-
-module "s3_bucket_resized" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/s3?ref=main"
-
-  bucket_name = var.destination_bucket_name
-  tags        = var.tags
-}
-
-module "sns_topic" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/sns?ref=main"
-
-  topic_name       = var.sns_topic_name
-  email_addresses  = var.notification_emails
-  tags             = var.tags
-}
-
-module "lambda_resize" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/lambda?ref=main"
-
-  function_name         = var.lambda_function_name
-  lambda_source_dir     = "${path.module}/lambda_package"
-  handler               = "resize_image.handler"
-  runtime               = "nodejs18.x"
-  timeout               = 60
-  memory_size           = 256
-  role_arn              = module.lambda_iam.role_arn
-  # enable_s3_trigger     = true
-  # s3_bucket_arn         = module.s3_bucket_original.bucket_arn
   
-  environment_variables = {
-    DESTINATION_BUCKET = module.s3_bucket_resized.bucket_id
-    SNS_TOPIC_ARN      = module.sns_topic.topic_arn
-    RESIZE_WIDTH       = var.resize_width
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.ssh_allowed_cidrs
+      description = "Allow SSH from specified CIDRs"
+    }
+  ]
+  egress_rules = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow all outbound traffic"
+    }
+  ]
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
   }
+  depends_on = [
+    module.vpc,
+    module.alb_sg
+  ]
+}
+
+# Security Group for ALB
+module "alb_sg" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/security_group?ref=main"
+  
+  name_prefix  = "${var.project_name}-${var.environment}"
+  name         = "alb-sg"
+  description  = "Security group for the ALB"
+  vpc_id       = module.vpc.vpc_id
+  
+  ingress_with_cidr_blocks = var.alb_sg_ingress_cidr
+  
+  egress_rules = var.alb_sg_egress_rules
+  
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+  }
+  depends_on = [
+    module.vpc
+  ]
+}
+
+
+module "web_server_1" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=main"
+  
+  name_prefix                = "${var.project_name}-web-server-1"
+  ami_id                     = var.web_server_ami
+  instance_type              = var.web_server_instance_type
+  subnet_id                  = module.vpc.public_subnet_ids[0]
+  security_group_ids         = [module.web_server_sg.security_group_id]
+  key_name                   = var.ssh_key_name
+  associate_public_ip_address = true
+  user_data_script          = "${path.root}/scripts/shell.sh"
+  
+  root_volume_type           = var.root_volume_type
+  root_volume_size           = var.root_volume_size
+  iam_instance_profile       = var.iam_instance_profile
+  
   tags = var.tags
+  depends_on = [
+    module.vpc,
+    module.alb_sg,
+    module.web_server_sg
+  ]
+}
+
+module "web_server_2" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ec2?ref=main"
+  
+  name_prefix                = "${var.project_name}-web-server-2"
+  ami_id                     = var.web_server_ami
+  instance_type              = var.web_server_instance_type
+  subnet_id                  = module.vpc.public_subnet_ids[1]
+  security_group_ids         = [module.web_server_sg.security_group_id]
+  key_name                   = var.ssh_key_name
+  associate_public_ip_address = true
+  user_data_script          = "${path.root}/scripts/dev.sh"
+  
+  root_volume_type           = var.root_volume_type
+  root_volume_size           = var.root_volume_size
+  iam_instance_profile       = var.iam_instance_profile
+  
+  tags = var.tags
+  depends_on = [
+    module.vpc,
+    module.alb_sg,
+    module.web_server_sg
+  ]
+}
+
+module "alb" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/alb?ref=main"
+  
+  name_prefix = "${var.project_name}-${var.environment}"
+  vpc_id      = module.vpc.vpc_id
+  subnet_ids  = module.vpc.public_subnet_ids
+  security_group_ids = [module.alb_sg.security_group_id]
+  
+  # Target Groups
+  target_groups = {
+    openproject = {
+      port     = 80
+      protocol = "HTTP"
+      health_check = {
+        path                = "/"
+        port                = "traffic-port"
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 5
+        interval            = 30
+        matcher             = "200"
+      }
+    }
+  }
+   
+  default_target_group_key = "openproject"
+  
+  # Target Group Attachments
+  target_group_attachments = [
+    {
+      target_group_key = "openproject"
+      target_id        = module.web_server_1.instance_id
+      port             = 80
+    }
+  ]
+  # Path-based routing rules
+  path_based_rules = {
+    openproject = {
+      priority      = 20
+      path_patterns = ["/"]
+      target_group_key = "openproject"
+    }
+  }
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+  }
+  depends_on = [
+    module.vpc,
+    module.alb_sg,
+    module.web_server_sg,
+    module.web_server_1,
+    module.web_server_2
+  ]
+}
+
+module "alb2" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/alb?ref=main"
+  
+  name_prefix = "${var.project_name}-${var.environment}-sec"
+  vpc_id      = module.vpc.vpc_id
+  subnet_ids  = module.vpc.public_subnet_ids
+  security_group_ids = [module.alb_sg.security_group_id]
+  
+  # Target Groups
+  target_groups = {
+    devlake = {
+      port     = 4000
+      protocol = "HTTP"
+      health_check = {
+        path                = "/"
+        port                = "traffic-port"
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 5
+        interval            = 30
+        matcher             = "200"
+      }
+    }
+  }
+   
+  default_target_group_key = "devlake"
+  
+  # Target Group Attachments
+  target_group_attachments = [
+    {
+      target_group_key = "devlake"
+      target_id        = module.web_server_2.instance_id
+      port             = 4000
+    }
+  ]
+  # Path-based routing rules
+  path_based_rules = {
+    devlake = {
+      priority      = 20
+      path_patterns = ["/"]
+      target_group_key = "devlake"
+    }
+  }
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+  }
+  depends_on = [
+    module.vpc,
+    module.alb_sg,
+    module.web_server_sg,
+    module.web_server_1,
+    module.web_server_2
+  ]
 }
