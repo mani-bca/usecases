@@ -1,139 +1,52 @@
-module "vpc" {
-  source                = "../module/vpc"
-  name                 = "${var.name}-vpc"
-  vpc_cidr             = var.vpc_cidr
-  availability_zones   = var.availability_zones
-  public_subnet_cidrs  = var.public_subnet_cidrs
-  private_subnet_cidrs = var.private_subnet_cidrs
-  create_nat_gateway   = var.create_nat_gateway
-  
-  tags = {
-    Name = var.name
+module "iam_role" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/iam_entity?ref=main"
+
+  name                 = var.name
+  type                 = var.type
+  trust_policy_json    = file("${path.module}/trust_policy.json")
+  aws_managed_policy_arns = var.aws_managed_policy_arns
+  inline_policies      = {
+    "lambda-inline-policy" = "${path.module}/lambda_ec2_logs_policy.json"
   }
 }
 
-module "ecs_execution_role" {
-  source                = "../module/iam_role"
-  name                  = "ecsExecutionRole"
-  trust_policy_json     = file("${path.module}/ecs_execution_trust_policy.json")
-  aws_managed_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  ]
-  inline_policies = {}
+module "lambda_docker" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/lambda_docker?ref=main"
+
+  function_name         = var.function_name
+  role_arn              = module.iam_role.iam_role_arn
+  image_uri             = var.image_uri
+  timeout               = var.timeout
+  memory_size           = var.memory_size
+  architectures         = var.architectures
+  environment_variables = var.environment_variables
+  tags                  = var.tags
 }
 
-module "ecs_task_role" {
-  source                = "../module/iam_role"
-  name                  = "ecsTaskRole"
-  trust_policy_json     = file("${path.module}/ecs_execution_trust_policy.json")
-  aws_managed_policy_arns = [
-  ]
-  inline_policies = {}
+module "api_gateway" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/api_gateway?ref=main"
+  api_name          = var.api_name
+  description       = var.description
+  resource_path     = var.resource_path
+  http_method       = var.http_method
+  authorization     = var.authorization
+  lambda_invoke_arn = module.lambda_docker.lambda_invoke_arn
+  stage_name        = var.stage_name
+  region            = var.region
+  lambda_function_name = module.lambda_docker.function_name
 }
 
-module "alb_sg" {
-  source      = "../module/security_group"
-  name        = "alb-sg"
-  description = "Allow HTTP to ALB"
-  vpc_id      = module.vpc.vpc_id
-  ingress = [
-    {
-      from_port   = 80
-      to_port     = 80
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  ]
-  egress = [
-    {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  ]
-  tags = { Name = "alb-sg" }
+# Read the lifecycle policy from external JSON file
+locals {
+  lifecycle_policy = fileexists("${path.module}/ecr_lifecycle_policy.json") ? file("${path.module}/ecr_lifecycle_policy.json") : null
 }
 
-module "alb" {
-  source                  = "../module/alb"
-  name                    = "ecs-demo-alb"
-  security_groups         = [module.alb_sg.id]
-  subnets                 = module.vpc.public_subnet_ids
-  vpc_id                  = module.vpc.vpc_id
-  tags                    = { Name = "ecs-demo-alb" }
-  appointment_port        = var.appointment_port
-  appointment_path        = var.appointment_path
-  appointment_health_path = var.appointment_health_path
-  patient_port            = var.patient_port
-  patient_path            = var.patient_path
-  patient_health_path     = var.patient_health_path
-}
-
-module "ecs_sg" {
-  source      = "../module/security_group"
-  name        = "ecs-service-sg"
-  description = "Allow HTTP"
-  vpc_id      = module.vpc.vpc_id
-  ingress = [
-    {
-      from_port   = var.appointment_port
-      to_port     = var.appointment_port
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    },
-    {
-      from_port   = var.patient_port
-      to_port     = var.patient_port
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  ]
-  egress = [
-    {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  ]
-  tags = { Name = "ecs-service-sg" }
-}
-
-module "ecs_fargate" {
-  source             = "../module/ecs_fargate"
-  cluster_name       = var.cluster_name
-  execution_role_arn = module.ecs_execution_role.arn
-  task_role_arn      = module.ecs_task_role.arn
-  subnet_ids         = module.vpc.public_subnet_ids
-  services = [
-    {
-      name             = "appointment"
-      desired_count    = var.appointment_desired_count
-      security_groups  = [module.ecs_sg.id]
-      assign_public_ip = true
-      container_name   = "appointment"
-      container_image  = var.appointment_image
-      container_port   = var.appointment_port
-      cpu              = var.cpu
-      memory           = var.memory
-      load_balancer = {
-        target_group_arn = module.alb.appointment_target_group_arn
-      }
-    },
-    {
-      name             = "patient"
-      desired_count    = var.patient_desired_count
-      security_groups  = [module.ecs_sg.id]
-      assign_public_ip = true
-      container_name   = "patient"
-      container_image  = var.patient_image
-      container_port   = var.patient_port
-      cpu              = var.cpu
-      memory           = var.memory
-      load_balancer = {
-        target_group_arn = module.alb.patient_target_group_arn
-      }
-    }
-  ]
-}
+#module "ecr" {
+#  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/ecr?ref=main"
+#
+#  repository_name     = var.repository_name
+#  image_tag_mutability = var.image_tag_mutability
+#  scan_on_push        = var.scan_on_push
+#  tags                = var.tags
+#  lifecycle_policy    = local.lifecycle_policy
+#}

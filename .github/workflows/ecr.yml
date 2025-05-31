@@ -2,49 +2,41 @@ name: Build and Push to ECR
 
 on:
   workflow_dispatch:
-    inputs:
-      working_directory:
-        description: 'Specify the working directory for the build'
-        required: true
-        default: 'application/appoint'
-      image_tag:
-        description: 'Specify the image tag for the Docker image'
-        required: true
-        default: latest
 
 permissions:
-  id-token: write
-  contents: read
+  id-token: write 
+  contents: read 
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ github.event.inputs.working_directory }}
-
+        working-directory: 'infra/helloapp'
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
+      
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
         role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
         aws-region: us-east-1
-
+        
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-
+      
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: dev/lambda
-        IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+        IMAGE_TAG: latest
       run: |
         # Build a docker container and push it to ECR
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
         echo "Pushing image to ECR..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"

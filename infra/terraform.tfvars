@@ -1,29 +1,45 @@
-region            = "us-east-1"
-# vpc_id            = "vpc-0bd1562f11536b9dd"
-# subnet_ids        = ["subnet-0aade558b97319d86", "subnet-0211abeb4ee6ef699"]
-tags = {
-  Name = "dev"
+######iam_entity
+name = "lambda-ec2-logs-role"
+type = "role"
+aws_managed_policy_arns = [
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+]
+#####lambda
+function_name = "my-docker-lambda"
+#role_arn      = "arn:aws:iam::123456789012:role/my_lambda_exec_role"
+image_uri     = "676206899900.dkr.ecr.us-east-1.amazonaws.com/dev/lambda:latest"
+timeout       = 30
+memory_size   = 128
+
+architectures = ["x86_64"]
+
+environment_variables = {
+  ENV = "prod"
+  LOG_LEVEL = "debug"
 }
-name = "demo"
-vpc_cidr             = "10.0.0.0/16"
-availability_zones   = ["us-east-1a", "us-east-1b"]
-public_subnet_cidrs  = ["10.0.6.0/24", "10.0.7.0/24"]
-private_subnet_cidrs = ["10.0.4.0/24", "10.0.5.0/24"]
-create_nat_gateway   = false
 
+#tags = {
+#  Project = "lambda-docker"
+#  Owner   = "Manivasagan"
+#}
+###api_gateway
 
-cluster_name      = "demo-ecs-cluster"
-cpu               = 256
-memory            = 512
+region             = "us-east-1"
+api_name           = "lambda-api"
+description        = "Docker API Gateway"
+resource_path      = "testhello"
+http_method        = "GET"
+authorization      = "NONE"
+#lambda_invoke_arn  = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:123456789012:function:my-lambda/invocations"
+stage_name         = "dev"
 
-appointment_port         = 3001
-appointment_path         = "/appointments*"
-appointment_health_path  = "/appointments"
-appointment_desired_count = 1
-appointment_image        = "676206899900.dkr.ecr.us-east-1.amazonaws.com/dev/lambda:app2"
+########ecr
+#repository_name     = "my-application"
+#image_tag_mutability = "IMMUTABLE"
+#scan_on_push        = true
 
-patient_port         = 3000
-patient_path         = "/patients*"
-patient_health_path  = "/patients"
-patient_desired_count = 1
-patient_image        = "676206899900.dkr.ecr.us-east-1.amazonaws.com/dev/lambda:pat1"
+tags = {
+  Environment = "production"
+  Project     = "my-app"
+  Owner       = "devops-team"
+}

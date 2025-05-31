@@ -1,15 +1,21 @@
-output "alb_dns_name" {
-  value = module.alb.alb_dns_name
+output "role_arn" {
+  value = module.iam_role.iam_role_arn
 }
 
-output "ecs_service_names" {
-  value = module.ecs_fargate.ecs_service_names
+output "function_name" {
+  value = module.lambda_docker.function_name
 }
 
-output "ecs_service_ids" {
-  value = module.ecs_fargate.ecs_service_ids
+output "lambda_arn" {
+  value = module.lambda_docker.lambda_arn
 }
 
-output "ecs_task_definition_arns" {
-  value = module.ecs_fargate.ecs_task_definition_arns
+output "lambda_invoke_arn" {
+  value = module.lambda_docker.lambda_invoke_arn
+}
+
+########api_gateway
+
+output "api_gateway_url" {
+  value = module.api_gateway.api_invoke_url
 }

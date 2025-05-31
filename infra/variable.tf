@@ -1,142 +1,120 @@
-variable "region" {
-  description = "AWS region"
-  type        = string
-}
-
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
-  type        = string
-}
-
-variable "availability_zones" {
-  description = "List of availability zones"
-  type        = list(string)
-}
-
-variable "public_subnet_cidrs" {
-  description = "CIDR blocks for public subnets"
-  type        = list(string)
-}
-
-variable "private_subnet_cidrs" {
-  description = "CIDR blocks for private subnets"
-  type        = list(string)
-}
-
-variable "create_nat_gateway" {
-  description = "Whether to create a NAT Gateway"
-  type        = bool
-}
 variable "name" {
-  description = "VPC name"
+  description = "Name of the IAM resource"
   type        = string
 }
 
-variable "cluster_name" {
-  description = "ECS Cluster name"
+variable "type" {
+  description = "IAM type: role, user, or group"
   type        = string
 }
 
-#variable "task_family" {
-#  description = "Task definition family"
+variable "aws_managed_policy_arns" {
+  description = "List of managed policies to attach"
+  type        = list(string)
+}
+
+#############lambda####
+variable "function_name" {
+  type = string
+}
+
+#variable "role_arn" {
+#  type = string
+#}
+
+variable "image_uri" {
+  type = string
+}
+
+variable "timeout" {
+  type = number
+  default = 10
+}
+
+variable "memory_size" {
+  type = number
+  default = 128
+}
+
+variable "architectures" {
+  type = list(string)
+  default = ["x86_64"]
+}
+
+variable "environment_variables" {
+  type = map(string)
+  default = {}
+}
+
+variable "tags" {
+  type = map(string)
+  default = {}
+}
+#################api_gateway
+
+#variable "region" {
+#  type        = string
+#  description = "AWS region"
+#}
+
+variable "api_name" {
+  type = string
+}
+
+variable "description" {
+  type = string
+}
+
+variable "resource_path" {
+  type = string
+}
+
+variable "http_method" {
+  type = string
+}
+
+variable "authorization" {
+  type = string
+}
+
+#variable "lambda_invoke_arn" {
+#  type = string
+#}
+
+variable "stage_name" {
+  type = string
+}
+##############ecr
+variable "region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+#variable "repository_name" {
+#  description = "Name of the ECR repository"
 #  type        = string
 #}
 
-variable "cpu" {
-  description = "CPU units for the task"
-  type        = number
-}
-
-variable "memory" {
-  description = "Memory for the task"
-  type        = number
-}
-
-#variable "execution_role_arn" {
-#  description = "Execution role ARN"
+#variable "image_tag_mutability" {
+#  description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE"
 #  type        = string
+#  default     = "MUTABLE"
+  
+#  validation {
+#    condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
+#    error_message = "Image tag mutability must be either MUTABLE or IMMUTABLE."
+#  }
 #}
 
-#variable "task_role_arn" {
-#  description = "Task role ARN"
-#  type        = string
+#variable "scan_on_push" {
+#  description = "Indicates whether images are scanned after being pushed to the repository"
+#  type        = bool
+#  default     = true
 #}
 
-#variable "container_name" {
-#  description = "Container name"
-#  type        = string
+#variable "tags" {
+#  description = "A map of tags to assign to the resource"
+#  type        = map(string)
+#  default     = {}
 #}
-
-#variable "container_image" {
-#  description = "Container image"
-#  type        = string
-#}
-
-#variable "container_port" {
-#  description = "Container port"
-#  type        = number
-#}
-
-# variable "subnet_ids" {
-#   description = "List of subnet IDs for ECS services"
-#   type        = list(string)
-# }
-
-#variable "services" {
-#  description = "List of ECS services"
-#  type = list(object({
-#    name             = string
-#    desired_count    = number
-#    security_groups  = list(string)
-#    assign_public_ip = bool
-#    load_balancer = optional(object({
-#      target_group_arn = string
-#    }))
-#  }))
-#}
-# variable "vpc_id" {
-#   description = "VPC ID for ECS and security groups"
-#   type        = string
-# }
-
-#variable "lb_target_group_arn_1" {
-#  description = "Target group ARN for service1"
-#  type        = string
-#}
-
-#variable "lb_target_group_arn_2" {
-#  description = "Target group ARN for service1"
-#  type        = string
-#}
-
-variable "appointment_port" { 
-  type = number 
-}
-variable "appointment_path" { 
-  type = string 
-}
-variable "appointment_health_path" { 
-  type = string 
-}
-variable "appointment_desired_count" { 
-  type = number 
-}
-variable "appointment_image" { 
-  type = string 
-}
-
-variable "patient_port" { 
-  type = number 
-}
-variable "patient_path" { 
-  type = string 
-}
-variable "patient_health_path" { 
-  type = string 
-}
-variable "patient_desired_count" { 
-  type = number 
-}
-variable "patient_image" { 
-  type = string 
-}
