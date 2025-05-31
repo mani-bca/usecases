@@ -1,119 +1,93 @@
-# main.tf
-module "iam" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/iam?ref=main"
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = var.tags
-}
 
-module "ec2" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/ec2?ref=main"
+module "lambda_iam" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/iam?ref=main"
 
-  project_name         = var.project_name
-  environment          = var.environment
-  instance_type        = var.instance_type
-  instance_count       = var.instance_count
-  subnet_ids           = var.subnet_ids
-  vpc_security_group_ids = var.vpc_security_group_ids
-  key_name             = var.key_name
-  ami_id               = var.ami_id
-  tags                 = var.tags
-}
-
-module "cloudwatch_event_start" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/cloudwatch?ref=main"
-
-  project_name    = var.project_name
-  environment     = var.environment
-  rule_name       = "start-ec2-instances"
-  description     = "Triggers Lambda function to start EC2 instances at specified time"
-  cron_expression = var.start_cron_expression
-  target_id       = "start-ec2-instances-target"
-  tags            = var.tags
-  lambda_function_arn = null
-}
-
-module "cloudwatch_event_stop" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/cloudwatch?ref=main"
-
-  project_name    = var.project_name
-  environment     = var.environment
-  rule_name       = "stop-ec2-instances"
-  description     = "Triggers Lambda function to stop EC2 instances at specified time"
-  cron_expression = var.stop_cron_expression
-  target_id       = "stop-ec2-instances-target"
-  tags            = var.tags
-  lambda_function_arn = null
-}
-
-module "lambda_start" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/lambda?ref=main"
-
-  project_name          = var.project_name
-  environment           = var.environment
-  function_name         = "start-ec2-instances"
-  source_file_path      = "${path.module}/../infra/python/start/start_ec2_instances.py"
-  handler               = "start_ec2_instances.lambda_handler"
-  runtime               = var.lambda_runtime
-  timeout               = var.lambda_timeout
-  memory_size           = var.lambda_memory_size
-  description           = "Lambda function to start EC2 instances during working hours"
-  lambda_role_arn       = module.iam.lambda_role_arn
-  environment_variables = {
-    EC2_INSTANCE_IDS = join(",", module.ec2.instance_ids)
-  }
-  tags                  = var.tags
+  role_name           = "${var.lambda_function_name}-role"
+  policy_name         = "${var.lambda_function_name}-policy"
+  policy_description  = "IAM policy for Lambda function ${var.lambda_function_name}"
+  service_principal   = "lambda.amazonaws.com"
+  enable_s3_trigger   = true
+  function_name       = var.lambda_function_name
+  s3_bucket_arn       = module.s3_bucket_original.bucket_arn
   
-  depends_on = [module.cloudwatch_event_start]
-}
-
-module "lambda_stop" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/lambda?ref=main"
-
-  project_name          = var.project_name
-  environment           = var.environment
-  function_name         = "stop-ec2-instances"
-  source_file_path      = "${path.module}/../infra/python/stop/stop_ec2_instances.py"
-  handler               = "stop_ec2_instances.lambda_handler"
-  runtime               = var.lambda_runtime
-  timeout               = var.lambda_timeout
-  memory_size           = var.lambda_memory_size
-  description           = "Lambda function to stop EC2 instances outside working hours"
-  lambda_role_arn       = module.iam.lambda_role_arn
-  environment_variables = {
-    EC2_INSTANCE_IDS = join(",", module.ec2.instance_ids)
-  }
-  tags                  = var.tags
-  
-  depends_on = [module.cloudwatch_event_stop]
-}
-
-module "connector_start" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/event_lambda?ref=main"
-  
-  cloudwatch_event_rule_arn  = module.cloudwatch_event_start.cloudwatch_event_rule_arn
-  cloudwatch_event_rule_name = module.cloudwatch_event_start.cloudwatch_event_rule_name
-  lambda_function_name       = module.lambda_start.lambda_function_name
-  lambda_function_arn        = module.lambda_start.lambda_function_arn
-  target_id                  = "start-ec2-instances-target"
-  
-  depends_on = [
-    module.cloudwatch_event_start,
-    module.lambda_start
+  policy_statements = [
+    {
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+      Effect   = "Allow"
+      Resource = "arn:aws:logs:*:*:*"
+    },
+    {
+      Action = [
+        "s3:GetObject"
+      ]
+      Effect   = "Allow"
+      Resource = "${module.s3_bucket_original.bucket_arn}/*"
+    },
+    {
+      Action = [
+        "s3:PutObject"
+      ]
+      Effect   = "Allow"
+      Resource = "${module.s3_bucket_resized.bucket_arn}/*"
+    },
+    {
+      Action = [
+        "sns:Publish"
+      ]
+      Effect   = "Allow"
+      Resource = module.sns_topic.topic_arn
+    }
   ]
+
+  tags = var.tags
 }
 
-module "connector_stop" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/schedule2/event_lambda?ref=main"
+module "s3_bucket_original" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/s3?ref=main"
+
+  bucket_name         = var.source_bucket_name
+  tags                = var.tags
+  enable_notification = true
+  lambda_function_arn = module.lambda_resize.function_arn
+  lambda_permission   = module.lambda_iam.s3_permission
+}
+
+module "s3_bucket_resized" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/s3?ref=main"
+
+  bucket_name = var.destination_bucket_name
+  tags        = var.tags
+}
+
+module "sns_topic" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/sns?ref=main"
+
+  topic_name       = var.sns_topic_name
+  email_addresses  = var.notification_emails
+  tags             = var.tags
+}
+
+module "lambda_resize" {
+  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/lambda?ref=main"
+
+  function_name         = var.lambda_function_name
+  lambda_source_dir     = "${path.module}/lambda_package"
+  handler               = "resize_image.handler"
+  runtime               = "nodejs18.x"
+  timeout               = 60
+  memory_size           = 256
+  role_arn              = module.lambda_iam.role_arn
+  # enable_s3_trigger     = true
+  # s3_bucket_arn         = module.s3_bucket_original.bucket_arn
   
-  cloudwatch_event_rule_arn  = module.cloudwatch_event_stop.cloudwatch_event_rule_arn
-  cloudwatch_event_rule_name = module.cloudwatch_event_stop.cloudwatch_event_rule_name
-  lambda_function_name       = module.lambda_stop.lambda_function_name
-  lambda_function_arn        = module.lambda_stop.lambda_function_arn
-  target_id                  = "stop-ec2-instances-target"
-  
-  depends_on = [
-    module.cloudwatch_event_stop,
-    module.lambda_stop
-  ]
+  environment_variables = {
+    DESTINATION_BUCKET = module.s3_bucket_resized.bucket_id
+    SNS_TOPIC_ARN      = module.sns_topic.topic_arn
+    RESIZE_WIDTH       = var.resize_width
+  }
+  tags = var.tags
 }

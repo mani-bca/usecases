@@ -1,4 +1,4 @@
-name: Terraform cron
+name: Terraform image resize
 
 on:
   pull_request:
@@ -65,6 +65,15 @@ jobs:
           git-push-sign-off: false
           fail-on-diff: false
 
+      - name: setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Build the node.js application
+        run: |
+          cd lambda_package
+          npm init -y
+          npm install aws-sdk sharp --platform=linux --arch=x64
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -73,9 +82,9 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # - name: Terraform test
-      #   run: terraform test
-      #   continue-on-error: true
+      - name: Terraform test
+        run: terraform test
+        continue-on-error: true
 
       - name: Terraform Format
         id: fmt
