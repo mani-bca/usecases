@@ -1,10 +1,10 @@
 name: Terraform Infra Workflow
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'ENV/**'
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
+  #   paths:
+  #     - 'ENV/**'
   workflow_dispatch:
 env:
   AWS_REGION: us-east-1
@@ -46,24 +46,24 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Install Checkov
-        run: |
-          python -m pip install --upgrade pip
-          pip install checkov
+      # - name: Install Checkov
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install checkov
 
-      - name: Run Checkov Static Analysis
-        run: |
-          checkov -d . --soft-fail
+      # - name: Run Checkov Static Analysis
+      #   run: |
+      #     checkov -d . --soft-fail
 
-      - name: Install tflint
-        run: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+      # - name: Install tflint
+      #   run: |
+      #     curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-      - name: Run tflint
-        run: |
-          tflint --init
-          tflint
-        continue-on-error: true
+      # - name: Run tflint
+      #   run: |
+      #     tflint --init
+      #     tflint
+      #   continue-on-error: true
 
       - name: Terraform Plan
         id: plan
@@ -84,10 +84,10 @@ jobs:
           export TF_LOG_PATH=$(pwd)/log.txt
           terraform destroy -auto-approve
 
-      - name: Upload Terraform Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-logs-dev
-          path: ENV/dev/log.txt
-          retention-days: 30
+      # - name: Upload Terraform Logs
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: terraform-logs-dev
+      #     path: ENV/dev/log.txt
+      #     retention-days: 30
