@@ -118,7 +118,8 @@ jobs:
         run: |
           export TF_LOG=DEBUG
           export TF_LOG_PATH=$(pwd)/log.txt
-          terraform plan -out=tfplan
+          terraform plan -out=tfplan.binary
+          terraform show -json tfplan.binary >tfplan.json
 
       - name: Install Conftest
         run: |
