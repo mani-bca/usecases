@@ -22,14 +22,14 @@ ec2_egress_rules = [
   }
 ]
 
-rds_ingress_rules = [
-  {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = ["${module.ec2_sg.this_security_group_id}"]
-  }
-]
+# rds_ingress_rules = [
+#   {
+#     from_port       = 5432
+#     to_port         = 5432
+#     protocol        = "tcp"
+#     security_groups = ["${module.ec2_sg.this_security_group_id}"]
+#   }
+# ]
 
 rds_egress_rules = [
   {

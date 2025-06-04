@@ -28,7 +28,16 @@ module "second_sg" {
   name          = "rds-sg"
   description   = "SG for RDS"
   vpc_id        = module.vpc.vpc_id
-  ingress_rules = var.rds_ingress_rules
+
+ ingress_rules = [
+    {
+      from_port       = 5432
+      to_port         = 5432
+      protocol        = "tcp"
+      security_groups = [module.first_sg.security_group_id]
+    }
+  ]
+
   egress_rules  = var.rds_egress_rules
   tags         = var.tags
 }
