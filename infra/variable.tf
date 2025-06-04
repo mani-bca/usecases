@@ -8,11 +8,6 @@ variable "availability_zones" {
   description = "List of availability zones to use (must provide 3 for this module)"
   type        = list(string)
   default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
-  
-  # validation {
-  #   condition     = length(var.availability_zones) == 3
-  #   error_message = "You must provide exactly 3 availability zones."
-  # }
 }
 
 variable "public_subnet_cidrs" {
@@ -34,12 +29,50 @@ variable "create_nat_gateway" {
 }
 ############SG
 variable "ec2_ingress_rules" {
+  type        = list(object({
+  from_port   = number
+  to_port     = number
+  protocol    = string
+  cidr_blocks     = optional(list(string))
+  security_groups = optional(list(string))
+  }))
+
+  
+}
+
+variable "ec2_egress_rules" {
+  type        = list(object({
+  from_port   = number
+  to_port     = number
+  protocol    = string
+  cidr_blocks     = optional(list(string))
+  security_groups = optional(list(string))
+  }))
   
 }
 
 variable "rds_egress_rules" {
+  type        = list(object({
+  from_port   = number
+  to_port     = number
+  protocol    = string
+  cidr_blocks     = optional(list(string))
+  security_groups = optional(list(string))
+  }))
   
 }
+variable "rds_ingress_rules" {
+  type        = list(object({
+  from_port   = number
+  to_port     = number
+  protocol    = string
+  cidr_blocks     = optional(list(string))
+  security_groups = optional(list(string))
+  }))
+  
+}
+
+
 
 
 
