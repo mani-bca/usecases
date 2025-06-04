@@ -37,6 +37,9 @@ variable "lambda_egress_rules" {
   
 }
 
+variable "rds_egress_rules" {
+  
+}
 
 
 

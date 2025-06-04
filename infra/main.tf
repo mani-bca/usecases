@@ -20,15 +20,11 @@ module "lambda_sg" {
   ingress_rules = []
   egress_rules  = var.lambda_egress_rules
   tags          = var.tags
-  depends_on = [
-    module.raw_s3_bucket,
-    module.vpc
-  ]
-
+  depends_on = [module.vpc]
 }
 
 module "rds_sg" {
-  source        = "../modules/security_group"
+  source        = "../modules/2sg"
   name          = "rds-sg"
   description   = "SG for RDS"
   vpc_id        = module.vpc.vpc_id
@@ -44,8 +40,5 @@ module "rds_sg" {
 
   egress_rules = var.rds_egress_rules
   tags         = var.tags
-  depends_on = [
-    module.raw_s3_bucket,
-    module.vpc
-  ]
+  depends_on = [module.vpc]
 }
