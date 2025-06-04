@@ -32,7 +32,7 @@ module "second_sg" {
       from_port       = 5432
       to_port         = 5432
       protocol        = "tcp"
-      security_groups = [module.first_sg.this_security_group_id]
+      security_groups = [module.first_sg.security_group_id]
     }
   ]
   egress_rules  = var.rds_egress_rules
