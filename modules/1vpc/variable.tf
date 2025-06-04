@@ -1,3 +1,9 @@
+
+variable "tags" {
+  description = "Additional tags for all resources"
+  type        = map(string)
+  default     = {}
+}
 variable "name" {
   description = "Name prefix for all resources"
   type        = string
@@ -49,8 +55,25 @@ variable "create_nat_gateway" {
   default     = false
 }
 
-variable "tags" {
-  description = "Additional tags for all resources"
-  type        = map(string)
-  default     = {}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

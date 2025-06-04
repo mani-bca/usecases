@@ -1,47 +1,56 @@
-variable "aws_region" {
-  description = "AWS region"
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
   type        = string
-  default     = "us-east-1"
+  default     = "10.0.0.0/16"
 }
 
-variable "source_bucket_name" {
-  description = "Name of the S3 bucket for original images"
-  type        = string
-}
-
-variable "destination_bucket_name" {
-  description = "Name of the S3 bucket for resized images"
-  type        = string
-}
-
-variable "sns_topic_name" {
-  description = "Name of the SNS topic"
-  type        = string
-}
-
-variable "notification_emails" {
-  description = "List of email addresses to receive notifications"
+variable "availability_zones" {
+  description = "List of availability zones to use (must provide 3 for this module)"
   type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  
+  # validation {
+  #   condition     = length(var.availability_zones) == 3
+  #   error_message = "You must provide exactly 3 availability zones."
+  # }
 }
 
-variable "lambda_function_name" {
-  description = "Name of the Lambda function"
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for the public subnets"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for the private subnets"
+  type        = list(string)
+  default     = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+}
+
+variable "create_nat_gateway" {
+  description = "Whether to create a NAT Gateway for private subnets"
+  type        = bool
+  default     = false
+}
+############SG
+variable "lambda_egress_rules" {
+  
+}
+
+
+
+
+variable "name" {
+  description = "Name prefix for all resources"
   type        = string
-}
-
-variable "resize_width" {
-  description = "Width to resize images to (in pixels)"
-  type        = number
-  default     = 800
+  default     = "my-vpc"
 }
 
 variable "tags" {
-  description = "Tags to apply to all resources"
+  description = "Additional tags for all resources"
   type        = map(string)
   default     = {}
 }
-variable "tagss" {
-  description = "Tags to apply to all resources"
-  type        = map(string)
-  default     = {}
-}
+
+
+
