@@ -27,7 +27,7 @@ module "second_sg" {
   description   = "SG for RDS"
   vpc_id        = module.vpc.vpc_id
 
- ingress_rules = [
+  ingress_rules = [
     {
       from_port       = 5432
       to_port         = 5432
@@ -37,4 +37,22 @@ module "second_sg" {
   ]
   egress_rules  = var.rds_egress_rules
   tags         = var.tags
+}
+
+module "first_ec2" {
+  source = "../modules/3ec2"
+  ec2name = var.ec2name
+  ami_id                     = var.server_ami
+  instance_type              = var.server_instance_type
+  subnet_id                  = module.vpc.public_subnet_ids[1]
+  security_group_ids         = [module.web_server_sg.security_group_id]
+  key_name                   = var.ssh_key_name
+  associate_public_ip_address = true
+  user_data_script          = "${path.root}/scripts/userdata.sh"
+  
+  root_volume_type           = var.root_volume_type
+  root_volume_size           = var.root_volume_size
+  iam_instance_profile       = var.iam_instance_profile
+  
+  tags = var.tags
 }

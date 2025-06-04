@@ -72,8 +72,43 @@ variable "rds_egress_rules" {
   
 # }
 
+################################ec2
+variable "ec2name" {
+  description = "Prefix to use for naming resources"
+  type        = string
+}
 
+variable "server_ami" {
+  description = "AMI ID for web servers"
+  type        = string
+}
 
+variable "server_instance_type" {
+  description = "Instance type for web servers"
+  type        = string
+}
+
+variable "ssh_key_name" {
+  description = "Name of SSH key pair to use for EC2 instances"
+  type        = string
+}
+
+variable "root_volume_type" {
+  description = "Volume type for the root block device"
+  type        = string
+}
+
+variable "root_volume_size" {
+  description = "Volume size for the root block device in GB"
+  type        = number
+}
+
+variable "iam_instance_profile" {
+  description = "IAM instance profile to attach to the instance (optional)"
+  type        = string
+  default = "null"
+}
+########################
 
 
 variable "vpcname" {

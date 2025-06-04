@@ -3,7 +3,7 @@ availability_zones   = ["us-east-1a", "us-east-1b"]
 public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
 private_subnet_cidrs = []
 create_nat_gateway   = false
-
+########################SECURITY group
 ec2_ingress_rules = [
   {
     from_port   = 22
@@ -39,6 +39,9 @@ rds_egress_rules = [
     cidr_blocks = ["0.0.0.0/0"]
   }
 ]
+########################EC2 
+
+
 
 tags = {
   Environment = "dev"
