@@ -35,7 +35,6 @@ module "second_sg" {
       security_groups = [module.first_sg.this_security_group_id]
     }
   ]
-
   egress_rules  = var.rds_egress_rules
   tags         = var.tags
 }

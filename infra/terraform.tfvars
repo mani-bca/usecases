@@ -42,5 +42,5 @@ rds_egress_rules = [
 
 tags = {
   Environment = "dev"
-  Project     = "example"
+  Project     = "test"
 }
