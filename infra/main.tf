@@ -52,7 +52,6 @@ module "first_ec2" {
   
   root_volume_type           = var.root_volume_type
   root_volume_size           = var.root_volume_size
-  iam_instance_profile       = var.iam_instance_profile
   
   tags = var.tags
 }

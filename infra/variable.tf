@@ -103,11 +103,6 @@ variable "root_volume_size" {
   type        = number
 }
 
-variable "iam_instance_profile" {
-  description = "IAM instance profile to attach to the instance (optional)"
-  type        = string
-  default = "null"
-}
 ########################
 
 

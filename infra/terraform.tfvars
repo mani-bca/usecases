@@ -46,7 +46,6 @@ server_instance_type = "t2.micro"
 ssh_key_name = "devops"
 root_volume_type = "gp3"
 root_volume_size = "8"
-iam_instance_profile = "null"
 
 
 tags = {
