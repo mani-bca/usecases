@@ -33,7 +33,7 @@ variable "create_nat_gateway" {
   default     = false
 }
 ############SG
-variable "lambda_egress_rules" {
+variable "ec2_ingress_rules" {
   
 }
 

@@ -12,33 +12,23 @@ module "vpc" {
   }
 }
 
-module "lambda_sg" {
+module "first_sg" {
   source        = "../modules/2sg"
   name          = "lambda-sg"
   description   = "SG for Lambda"
   vpc_id        = module.vpc.vpc_id
-  ingress_rules = []
-  egress_rules  = var.lambda_egress_rules
+  # ingress_rules = []
+  ingress_rules = var.ec2_ingress_rules
+  egress_rules  = var.ec2_egress_rules
   tags          = var.tags
-  depends_on = [module.vpc]
 }
 
-module "rds_sg" {
+module "second_sg" {
   source        = "../modules/2sg"
   name          = "rds-sg"
   description   = "SG for RDS"
   vpc_id        = module.vpc.vpc_id
-
-  ingress_rules = [
-    {
-      from_port       = 5432
-      to_port         = 5432
-      protocol        = "tcp"
-      security_groups = [module.lambda_sg.security_group_id]
-    }
-  ]
-
-  egress_rules = var.rds_egress_rules
+  ingress_rules = var.rds_ingress_rules
+  egress_rules  = var.rds_egress_rules
   tags         = var.tags
-  depends_on = [module.vpc]
 }
