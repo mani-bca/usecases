@@ -45,7 +45,7 @@ module "first_ec2" {
   ami_id                     = var.server_ami
   instance_type              = var.server_instance_type
   subnet_id                  = module.vpc.public_subnet_ids[1]
-  security_group_ids         = [module.web_server_sg.security_group_id]
+  security_group_ids         = [module.first_sg.security_group_id]
   key_name                   = var.ssh_key_name
   associate_public_ip_address = true
   user_data_script          = "${path.root}/scripts/userdata.sh"
