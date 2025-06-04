@@ -76,7 +76,7 @@ variable "rds_egress_rules" {
 
 
 
-variable "name" {
+variable "vpcname" {
   description = "Name prefix for all resources"
   type        = string
   default     = "my-vpc"

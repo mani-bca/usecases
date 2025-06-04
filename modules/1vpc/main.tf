@@ -6,7 +6,7 @@ resource "aws_vpc" "main" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-vpc"
+      Name = "${var.vpcname}-vpc"
     }
   )
 }
@@ -22,7 +22,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-public-subnet-${count.index + 1}"
+      Name = "${var.vpcname}-public-subnet-${count.index + 1}"
       Type = "Public"
     }
   )
@@ -38,7 +38,7 @@ resource "aws_subnet" "private" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-private-subnet-${count.index + 1}"
+      Name = "${var.vpcname}-private-subnet-${count.index + 1}"
       Type = "Private"
     }
   )
@@ -52,7 +52,7 @@ resource "aws_internet_gateway" "main" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-igw"
+      Name = "${var.vpcname}-igw"
     }
   )
 }
@@ -66,7 +66,7 @@ resource "aws_eip" "nat" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-nat-eip"
+      Name = "${var.vpcname}-nat-eip"
     }
   )
 }
@@ -79,7 +79,7 @@ resource "aws_nat_gateway" "main" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-nat-gw"
+      Name = "${var.vpcname}-nat-gw"
     }
   )
 
@@ -93,7 +93,7 @@ resource "aws_route_table" "public" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-public-rt"
+      Name = "${var.vpcname}-public-rt"
     }
   )
 }
@@ -112,7 +112,7 @@ resource "aws_route_table" "private" {
   tags = merge(
     var.tags,
     {
-      Name = "${var.name}-private-rt"
+      Name = "${var.vpcname}-private-rt"
     }
   )
 }

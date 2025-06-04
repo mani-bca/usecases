@@ -1,15 +1,13 @@
 module "vpc" {
-  source                = "../modules/1vpc"
-  name                 = "${var.name}-vpc"
+  source               = "../modules/1vpc"
+  # name                 = "${var.name}-vpc"
+  vpcname              = var.vpcname
   vpc_cidr             = var.vpc_cidr
   availability_zones   = var.availability_zones
   public_subnet_cidrs  = var.public_subnet_cidrs
   private_subnet_cidrs = var.private_subnet_cidrs
   create_nat_gateway   = var.create_nat_gateway
-  
-  tags = {
-    Name = var.name
-  }
+  tags                 = var.tags
 }
 
 module "first_sg" {
@@ -34,7 +32,7 @@ module "second_sg" {
       from_port       = 5432
       to_port         = 5432
       protocol        = "tcp"
-      security_groups = [module.first_sg.security_group_id]
+      security_groups = [module.first_sg.this_security_group_id]
     }
   ]
 

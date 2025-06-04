@@ -4,10 +4,10 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-variable "name" {
+variable "vpcname" {
   description = "Name prefix for all resources"
   type        = string
-  default     = "my-vpc"
+  default     = "custom"
 }
 
 variable "vpc_cidr" {
