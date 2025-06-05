@@ -73,11 +73,15 @@ variable "rds_egress_rules" {
 # }
 
 ################################ec2
-variable "ec2name" {
+variable "web1name" {
   description = "Prefix to use for naming resources"
   type        = string
 }
 
+variable "web2name" {
+  description = "Prefix to use for naming resources"
+  type        = string
+}
 variable "server_ami" {
   description = "AMI ID for web servers"
   type        = string

@@ -40,7 +40,8 @@ rds_egress_rules = [
   }
 ]
 ########################EC2 
-ec2name =  "web"
+web1name =  "web1"
+web2name =  "web2"
 server_ami = "ami-084568db4383264d4"
 server_instance_type = "t2.micro"
 ssh_key_name = "devops"

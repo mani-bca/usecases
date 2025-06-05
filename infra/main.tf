@@ -41,7 +41,7 @@ module "second_sg" {
 
 module "first_ec2" {
   source = "../modules/3ec2"
-  ec2name = var.ec2name
+  ec2name                    = var.web1name
   ami_id                     = var.server_ami
   instance_type              = var.server_instance_type
   subnet_id                  = module.vpc.public_subnet_ids[1]
@@ -49,6 +49,23 @@ module "first_ec2" {
   key_name                   = var.ssh_key_name
   associate_public_ip_address = true
   user_data_script          = "${path.root}/scripts/userdata.sh"
+  
+  root_volume_type           = var.root_volume_type
+  root_volume_size           = var.root_volume_size
+  
+  tags = var.tags
+}
+
+module "second_ec2" {
+  source = "../modules/3ec2"
+  ec2name                    = var.web2name
+  ami_id                     = var.server_ami
+  instance_type              = var.server_instance_type
+  subnet_id                  = module.vpc.public_subnet_ids[2]
+  security_group_ids         = [module.first_sg.security_group_id, module.first_sg.security_group_id]
+  key_name                   = var.ssh_key_name
+  associate_public_ip_address = true
+  # user_data_script          = "${path.root}/scripts/userdata.sh"
   
   root_volume_type           = var.root_volume_type
   root_volume_size           = var.root_volume_size
