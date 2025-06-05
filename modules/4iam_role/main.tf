@@ -31,3 +31,23 @@ resource "aws_iam_role_policy" "custom_inline" {
 # output "iam_role_arn" {
 #   value = aws_iam_role.this.arn
 # }
+resource "aws_iam_role" "this" {
+  name               = var.role_name
+  # The assume_role_policy is now directly taken from the variable
+  assume_role_policy = var.assume_role_policy
+  tags               = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "this" {
+  count      = length(var.policy_arns)
+  policy_arn = var.policy_arns[count.index]
+  role       = aws_iam_role.this.name
+}
+
+resource "aws_iam_role_policy" "custom_inline" {
+  count = var.inline_policy != null ? 1 : 0
+
+  name   = "${var.role_name}-inline"
+  role   = aws_iam_role.this.id
+  policy = var.inline_policy
+}

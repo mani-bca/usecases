@@ -1,3 +1,8 @@
+variable "vpcname" {
+  description = "Name prefix for all resources"
+  type        = string
+  default     = "my-vpc"
+}
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
@@ -107,14 +112,30 @@ variable "root_volume_size" {
   type        = number
 }
 
-########################
-
-
-variable "vpcname" {
-  description = "Name prefix for all resources"
+########################iam role
+variable "lambda_role_name" {
+  description = "Name for the Lambda IAM role."
   type        = string
-  default     = "my-vpc"
 }
+
+variable "lambda_policy_arns" {
+  description = "List of managed policy ARNs for the Lambda role."
+  type        = list(string)
+  default = []
+}
+
+variable "ec2_role_name" {
+  description = "Name for the EC2 IAM role."
+  type        = string
+}
+
+variable "ec2_policy_arns" {
+  description = "List of managed policy ARNs for the EC2 role."
+  type        = list(string)
+  default = []
+}
+
+
 
 variable "tags" {
   description = "Additional tags for all resources"

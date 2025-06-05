@@ -72,3 +72,54 @@ module "second_ec2" {
   
   tags = var.tags
 }
+
+module "lambda_iam_role" {
+  source = "../modules/4iam_role"
+
+  role_name          = var.lambda_role_name
+  policy_arns        = var.lambda_policy_arns
+  tags               = var.tags
+
+  # Define assume_role_policy for Lambda service
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+
+  inline_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = ["bedrock-runtime:InvokeModel"],
+        Resource = "arn:aws:bedrock:us-east-1::foundation-model/*"
+      }
+    ]
+  })
+}
+
+module "ec2_instance_role" {
+  source = "../modules/4iam_role"
+
+  role_name   = var.ec2_role_name
+  policy_arns = var.ec2_policy_arns
+  tags        = var.tags
+
+  # Define assume_role_policy for EC2 service
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+}

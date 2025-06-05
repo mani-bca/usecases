@@ -53,3 +53,13 @@ tags = {
   Environment = "dev"
   Project     = "test"
 }
+
+########################iamrole
+lambda_role_name     = "my-generic-lambda-role"
+lambda_policy_arns   = [
+  "arn:aws:iam::aws:policy/AWSLambda_FullAccess",
+  "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+  "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+]
+
+ec2_role_name        = "my-generic-ec2-role"
