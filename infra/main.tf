@@ -61,7 +61,7 @@ module "second_ec2" {
   ec2name                    = var.web2name
   ami_id                     = var.server_ami
   instance_type              = var.server_instance_type
-  subnet_id                  = module.vpc.public_subnet_ids[2]
+  subnet_id                  = module.vpc.public_subnet_ids[0]
   security_group_ids         = [module.first_sg.security_group_id, module.first_sg.security_group_id]
   key_name                   = var.ssh_key_name
   associate_public_ip_address = true
