@@ -16,7 +16,6 @@ module "lambda_iam_role" {
   role_name          = var.lambda_role_name
   policy_arns        = var.lambda_policy_arns
   tags               = var.tags
-
   # Define assume_role_policy for Lambda service
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -42,28 +41,28 @@ module "lambda_iam_role" {
 }
 
 
-module "lambda_docker" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/lambda_docker?ref=main"
+# module "lambda_docker" {
+#   source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/lambda_docker?ref=main"
 
-  function_name         = var.function_name
-  role_arn              = module.iam_role.iam_role_arn
-  image_uri             = var.image_uri
-  timeout               = var.timeout
-  memory_size           = var.memory_size
-  architectures         = var.architectures
-  environment_variables = var.environment_variables
-  tags                  = var.tags
-}
+#   function_name         = var.function_name
+#   role_arn              = module.iam_role.iam_role_arn
+#   image_uri             = var.image_uri
+#   timeout               = var.timeout
+#   memory_size           = var.memory_size
+#   architectures         = var.architectures
+#   environment_variables = var.environment_variables
+#   tags                  = var.tags
+# }
 
-module "api_gateway" {
-  source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/api_gateway?ref=main"
-  api_name          = var.api_name
-  description       = var.description
-  resource_path     = var.resource_path
-  http_method       = var.http_method
-  authorization     = var.authorization
-  lambda_invoke_arn = module.lambda_docker.lambda_invoke_arn
-  stage_name        = var.stage_name
-  region            = var.region
-  lambda_function_name = module.lambda_docker.function_name
-}
+# module "api_gateway" {
+#   source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/api_gateway?ref=main"
+#   api_name          = var.api_name
+#   description       = var.description
+#   resource_path     = var.resource_path
+#   http_method       = var.http_method
+#   authorization     = var.authorization
+#   lambda_invoke_arn = module.lambda_docker.lambda_invoke_arn
+#   stage_name        = var.stage_name
+#   region            = var.region
+#   lambda_function_name = module.lambda_docker.function_name
+# }
