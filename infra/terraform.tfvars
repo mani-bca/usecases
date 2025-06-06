@@ -63,3 +63,7 @@ lambda_policy_arns   = [
 ]
 
 ec2_role_name        = "my-generic-ec2-role"
+ec2_policy_arns      = [
+  "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+  "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+]
