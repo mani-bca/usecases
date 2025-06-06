@@ -2,17 +2,17 @@ output "role_arn" {
   value = module.iam_role.iam_role_arn
 }
 
-output "function_name" {
-  value = module.lambda_docker.function_name
-}
+# output "function_name" {
+#   value = module.lambda_docker.function_name
+# }
 
-output "lambda_arn" {
-  value = module.lambda_docker.lambda_arn
-}
+# output "lambda_arn" {
+#   value = module.lambda_docker.lambda_arn
+# }
 
-output "lambda_invoke_arn" {
-  value = module.lambda_docker.lambda_invoke_arn
-}
+# output "lambda_invoke_arn" {
+#   value = module.lambda_docker.lambda_invoke_arn
+# }
 
 ########api_gateway
 

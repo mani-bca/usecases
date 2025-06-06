@@ -16,7 +16,6 @@ module "lambda_iam_role" {
   role_name          = var.lambda_role_name
   policy_arns        = var.lambda_policy_arns
   tags               = var.tags
-  # Define assume_role_policy for Lambda service
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -29,12 +28,16 @@ module "lambda_iam_role" {
   })
 
   inline_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
+     Version: "2012-10-17",
+     Statement: [
       {
-        Effect   = "Allow",
-        Action   = ["bedrock-runtime:InvokeModel"],
-        Resource = "arn:aws:bedrock:us-east-1::foundation-model/*"
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource": "arn:aws:logs:*:*:*"
       }
     ]
   })
