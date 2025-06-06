@@ -1,5 +1,5 @@
-output "role_arn" {
-  value = module.iam_role.iam_role_arn
+output "iam_role_arn" {
+  value = module.lambda_iam_role.arn
 }
 
 # output "function_name" {
