@@ -33,7 +33,6 @@
 # }
 resource "aws_iam_role" "this" {
   name               = var.role_name
-  # The assume_role_policy is now directly taken from the variable
   assume_role_policy = var.assume_role_policy
   tags               = var.tags
 }

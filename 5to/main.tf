@@ -1,15 +1,3 @@
-# module "iam_role" {
-#   source = "git::https://github.com/mani-bca/set-aws-infra.git//modules/iam_entity?ref=main"
-
-#   name                 = var.name
-#   type                 = var.type
-#   trust_policy_json    = file("${path.module}/trust_policy.json")
-#   aws_managed_policy_arns = var.aws_managed_policy_arns
-#   inline_policies      = {
-#     "lambda-inline-policy" = "${path.module}/lambda_ec2_logs_policy.json"
-#   }
-# }
-
 module "lambda_iam_role" {
   source = "../modules/4iam_role"
 
