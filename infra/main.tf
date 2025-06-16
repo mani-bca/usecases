@@ -35,7 +35,7 @@ module "lambda_docker" {
   source = "../modules/5lamdadocker"
 
   function_name         = var.function_name
-  role_arn              = module.iam_role.iam_role_arn
+  role_arn              = module.lambda_iam_role.iam_role_arn
   image_uri             = var.image_uri
   timeout               = var.timeout
   memory_size           = var.memory_size
@@ -43,8 +43,6 @@ module "lambda_docker" {
   environment_variables = var.environment_variables
   tags                  = var.tags
 }
-
-data "aws_region" "current" {}
 
 module "api_gateway" {
   source                  = "../modules/6apirest"
