@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket         = "dev-terraform-state-platform"
     key            = "usecase18/terraform.tfstate"
-    region         = var.region
+    region         = "us-east-1"
     use_lockfile   = true
     encrypt        = true
   }
@@ -17,5 +17,5 @@ terraform {
   required_version = ">= 1.9.0"
 }
 provider "aws" {
-  region = var.region
+  region = "us-east-1"
 }
