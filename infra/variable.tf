@@ -18,6 +18,44 @@ variable "lambda_policy_arns" {
   description = "List of managed policies to attach"
   type        = list(string)
 }
+#################lambda
+variable "function_name" {
+  type = string
+}
+
+#variable "role_arn" {
+#  type = string
+#}
+
+variable "image_uri" {
+  type = string
+}
+
+variable "timeout" {
+  type = number
+  default = 10
+}
+
+variable "memory_size" {
+  type = number
+  default = 128
+}
+
+variable "architectures" {
+  type = list(string)
+  default = ["x86_64"]
+}
+
+variable "environment_variables" {
+  type = map(string)
+  default = {}
+}
+
+variable "tags" {
+  type = map(string)
+  default = {}
+}
+
 
 #################api
 

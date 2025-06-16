@@ -1,7 +1,6 @@
-# output "iam_role_arn" {
-#   description = "ARN of the IAM role"
-#   value       = aws_iam_role.this.arn
-# }
+output "role_arn" {
+  value = module.lambda_iam_role.iam_role_arn
+}
 
 # output "function_name" {
 #   value = module.lambda_docker.function_name

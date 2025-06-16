@@ -1,21 +1,44 @@
-variable "name" {
-  description = "Name of the IAM role"
+variable "function_name" {
+  description = "Name of the Lambda function"
   type        = string
 }
 
-variable "trust_policy_json" {
-  description = "Path to trust policy JSON file"
+variable "role_arn" {
+  description = "IAM role ARN for Lambda execution"
   type        = string
 }
 
-variable "aws_managed_policy_arns" {
-  description = "List of AWS managed policy ARNs"
+variable "image_uri" {
+  description = "ECR Image URI for Docker-based Lambda"
+  type        = string
+}
+
+variable "timeout" {
+  description = "Timeout in seconds"
+  type        = number
+  default     = 10
+}
+
+variable "memory_size" {
+  description = "Memory in MB"
+  type        = number
+  default     = 128
+}
+
+variable "architectures" {
+  description = "Instruction set architecture"
   type        = list(string)
-  default     = []
+  default     = ["x86_64"]
 }
 
-variable "inline_policies" {
-  description = "Map of inline policy names to file paths"
+variable "environment_variables" {
+  description = "Environment variables for Lambda"
+  type        = map(string)
+  default     = {}
+}
+
+variable "tags" {
+  description = "Tags to apply"
   type        = map(string)
   default     = {}
 }
