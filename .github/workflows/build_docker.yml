@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: 'infra\lambda_code'
+        working-directory: 'infra/lambda_code'
 
     steps:
     - name: Checkout code
