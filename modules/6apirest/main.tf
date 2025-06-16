@@ -31,5 +31,10 @@ resource "aws_api_gateway_integration" "integration" {
 resource "aws_api_gateway_deployment" "deployment" {
   depends_on = [aws_api_gateway_integration.integration]
   rest_api_id = aws_api_gateway_rest_api.this.id
-  stage_name  = var.stage_name
+
+}
+resource "aws_api_gateway_stage" "this" {
+  deployment_id = aws_api_gateway_deployment.deployment.id # Links to the deployment
+  rest_api_id   = aws_api_gateway_rest_api.this.id          # Links to the REST API
+  stage_name    = var.stage_name                            # Uses the stage name from your input variable
 }
