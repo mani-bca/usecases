@@ -1,0 +1,40 @@
+name: Build and Push to ECR
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 'infra\lambda_code'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to ECR
+      env:
+        ECR_REGISTRY: 676206899900.dkr.ecr.us-east-1.amazonaws.com
+        ECR_REPOSITORY: dev/lambda
+        IMAGE_TAG: uploadapp
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
