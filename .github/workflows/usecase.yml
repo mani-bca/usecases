@@ -1,4 +1,4 @@
-name: Terraform image resize
+name: Terraform 18th
 
 on:
   pull_request:

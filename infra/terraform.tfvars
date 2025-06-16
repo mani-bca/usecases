@@ -27,3 +27,9 @@ integration_http_method = "POST"
 integration_type        = "MOCK"
 integration_uri         = ""
 stage_name              = "dev"
+#####################tags
+tags = {
+  Environment = "production"
+  Project     = "my-app"
+  Owner       = "devops-team"
+}

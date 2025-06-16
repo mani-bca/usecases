@@ -51,11 +51,6 @@ variable "environment_variables" {
   default = {}
 }
 
-variable "tags" {
-  type = map(string)
-  default = {}
-}
-
 
 #################api
 
