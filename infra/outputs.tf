@@ -17,6 +17,10 @@
 
 ########api_gateway
 
-# output "api_gateway_url" {
-#   value = module.api_gateway.api_invoke_url
-# }
+output "api_gateway_id" {
+  value = module.api_gateway.rest_api_id
+}
+
+output "invoke_url" {
+  value = module.api_gateway.invoke_url
+}
